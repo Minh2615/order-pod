@@ -60,6 +60,8 @@
         <thead>
             <tr>
                 <th scope="col"><?php echo __( 'STT', 'order_sandbox' ); ?></th>
+                <th scope="col"><?php echo __( 'Desgin name', 'order_sandbox' ); ?></th>
+                <th scope="col"><?php echo __( 'Push Desgin', 'order_sandbox' ); ?></th>
                 <th scope="col"><?php echo __( 'Campaign', 'order_sandbox' ); ?></th>
                 <th scope="col"><?php echo __( 'App Name', 'order_sandbox' ); ?></th>
                 <th scope="col"><?php echo __( 'Date', 'order_sandbox' ); ?></th>
@@ -106,6 +108,12 @@
             
             <tr class="row-tk">
                 <td><?php echo $i; ?></td>
+                <td class="row_design_name">
+                    <select name="design_name" id="design_name" style="width:200px">
+                        <option value="<?php echo $value->design_name ?? '' ; ?>" selected="selected"><?php echo $value->design_name ?? ''; ?></option>
+                    </select>                   
+                </td>
+                <td><button type="button" class="btn btn-info push_design">Push</button></td>
                 <td scope="row">
                     <?php if(empty($value->camp_id)){ ?>
                         <button type="button" class="btn btn-info create_camp"><?php echo __( 'Create ', 'order_sandbox' ); ?></button>
@@ -117,7 +125,7 @@
                 </td>
                 <td class="access_token" style="display:none"><?php echo $value->access_token; ?></td>
                 <td class="product_id_camp" style="display:none"><?php echo $value->product_id_camp; ?></td>
-                <td scope="row"><?php echo $query_app_name[0]->name_app; ?></td>
+                <td scope="row"><?php echo $query_app_name[0] ? $query_app_name[0]->name_app : ''; ?></td>
                 <td scope="row"><?php echo $value->order_time; ?></td>
                 <td class="order_id"><?php echo $value->order_id; ?></td>
                 <td class="day_to_ful ful_<?php echo $i; ?>">

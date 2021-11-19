@@ -149,22 +149,26 @@ class ManagerOrder{
         wp_enqueue_style( 'mo-phys-font-css', MO_PHYS_URL . 'assets/css/font-awesome.min.css', array(), '4.7.0' );
         wp_enqueue_style( 'mo-phys-toggle-css', MO_PHYS_URL . 'assets/css/bootstrap4-toggle.min.css', array(),'3.6.1');
         wp_enqueue_style( 'mo-phys-admin-css', MO_PHYS_URL . 'assets/css/main-admin.css', array(),$v_rand);
+        wp_enqueue_style( 'mo-phys-select2-css', MO_PHYS_URL . 'assets/css/select2.min.css', array(), '3.6.1' );
 		//wp_register_style( 'gmc-phys-main-css', MO_PHYS_URL . 'assets/css/main-admin.css', array(), '1.0.0' );
 
 		// script
+        wp_enqueue_script( 'mo-phys-select2-js', MO_PHYS_URL . 'assets/js/select2.min.js', array(), '7.2.0', true );
         wp_enqueue_script( 'mo-phys-papa-js', MO_PHYS_URL . 'assets/js/papaparse.min.js', array(), '5.3.0', true );
         wp_enqueue_script( 'mo-phys-jquery-ui-js', MO_PHYS_URL . 'assets/js/jquery-ui.min.js', array(), '1.12.1', true );
         wp_enqueue_script( 'mo-phys-popper-js', MO_PHYS_URL . 'assets/js/popper.min.js', array(), '1.12.9', true );
         wp_enqueue_script( 'mo-phys-swee-js', MO_PHYS_URL . 'assets/js/sweetalert2.all.min.js', array(), '7.2.0', true );
 		wp_enqueue_script( 'mo-phys-bootstrap-js', MO_PHYS_URL . 'assets/js/bootstrap.min.js', array(), '4.3.1', true );
         wp_enqueue_script( 'mo-phys-toggle-js', MO_PHYS_URL . 'assets/js/bootstrap4-toggle.min.js', array(), '3.6.1', true );
-		wp_enqueue_script( 'mo-phys-admin-js', MO_PHYS_URL . 'assets/js/admin.js', array( 'jquery' ), $v_rand, true );
+		wp_enqueue_script( 'mo-phys-admin-js', MO_PHYS_URL . 'assets/js/admin.js', array( 'jquery','wp-api-fetch', 'wp-url' ), $v_rand, true );
         wp_localize_script( 'mo-phys-admin-js', 'mo_localize_script',
             array( 
                 'ajaxurl' => admin_url( 'admin-ajax.php' ),
                 'page_order'=>get_site_url() .'/wp-admin/admin.php?page=mpo_list_order',
                 'page_history'=>get_site_url() .'/wp-admin/admin.php?page=mpo_order_history',
                 'page_camp'=>get_site_url() .'/wp-admin/admin.php?page=mpo_list_campaign',
+                'rest_url' => get_rest_url(),
+                'design_rest_url' => 'http://poddes.local/wp-json/' //nho sua
             )
         );  
 	}

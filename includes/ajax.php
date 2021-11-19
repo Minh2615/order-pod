@@ -62,7 +62,7 @@ class ManagerOrderAjax {
 
         //
         add_action('update_status_order_mpo',array($this,'auto_update_status_order_mpo'));
-        wp_schedule_single_event( time() + 1800, 'update_status_order_mpo' );
+       // wp_schedule_single_event( time() + 1800, 'update_status_order_mpo' );
 
         //
     
@@ -70,7 +70,7 @@ class ManagerOrderAjax {
         add_action('remove_product_mpo', array($this,'start_remove_product_merchant'),10,4);
         //
         add_action('get_campaign_mpo', array($this,'auto_get_campaign_mpo'));
-        wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
+       // wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
 
         // upload token after 30 days
 
@@ -89,7 +89,23 @@ class ManagerOrderAjax {
 
         add_action( 'wp_ajax_push_order_action', array( $this, 'push_order_action_callback' ));
 		add_action( 'wp_ajax_nopriv_push_order_action', array( $this, 'push_order_action_callback'));
+        // save design name
+        add_action( 'wp_ajax_save_desgin_name', array( $this, 'save_desgin_name' ) );
+		add_action( 'wp_ajax_nopriv_save_desgin_name', array( $this, 'save_desgin_name' ) );
 	}
+    public function save_desgin_name(){
+
+        global $wpdb;
+
+        $order_id = isset($_POST['order_id']) ? $_POST['order_id'] : '';
+        $user_name = isset($_POST['user_name']) ? $_POST['user_name'] : '';
+        
+        $respon = $wpdb->update($wpdb->prefix . 'mpo_order', array('design_name'=>$user_name) ,array( 'order_id' => $order_id ));
+
+        wp_send_json_success($respon);
+    }
+
+
     public function push_order_action_callback(){
 
         $data = isset($_POST['data']) ? $_POST['data'] : '';

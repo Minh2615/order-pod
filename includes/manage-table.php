@@ -46,7 +46,21 @@ class Mpo_Table{
 		$this->addColumnNoteConfigMpo();
 		$this->addColumnNameCampaign();
 		$this->addColumnProductIdCamp();
+		$this->addColumnDesignName();
 	}
+		
+	private function addColumnDesignName(){
+
+		global $wpdb;
+
+		$table_name = $this->_wpdb->prefix . 'mpo_order';
+
+		$sql = "ALTER TABLE $table_name
+				ADD design_name varchar(255) AFTER custom_note_cc";
+
+		$wpdb->query($sql);
+	}
+
 	private function addColumnExpiryTimeConfigMpo(){
 
 		global $wpdb;

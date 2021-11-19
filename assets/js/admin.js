@@ -1052,7 +1052,118 @@ jQuery(document).ready(function($){
           })
     })
      
-    
+
+    var designName = jQuery('#design_name');
+    var dataDesgin = {};
+    designName.select2({
+        ajax: {
+            url : mo_localize_script.design_rest_url + 'wp/v2/users',
+            type: "get",
+            dataType: 'json',
+            data( e ) {
+                return {search: e.term }
+            },
+            processResults( data , params ) {
+                const datas = data.map( ele => {
+                    return dataDesgin = {
+                        id: ele.id,
+                        text: ele.name,
+                    }
+                });
+
+                return {
+                    results: datas
+                }
+            },
+            success: function(result){
+
+            },
+            error: function(xhr){
+                console.log(xhr.status);
+            },
+        }
+    });
+
+    designName.on('select2:select',function(e){
+        dataDesgin = e.params.data;
+    })
+    const create_design =  (orderID, titleProduct ,imgProduct, designID) => {
+        //console.log(mo_localize_script.design_rest_url + 'mpo-design/create-design')
+        jQuery.ajax({
+            url : 'http://poddes.local/wp-json/mpo-design/create-design',
+            type: "post",
+            data:{
+                mpo_order_id: orderID,
+                mpo_title_product : titleProduct,
+                mpo_img_product : imgProduct,
+                mpo_author: designID
+            },
+            success: function(result){ 
+                if(result.status === "success"){
+                        swal({title: "Success", type: 
+                            "success"}).then(function(){ 
+                                location.reload(true);
+                            }
+                        );
+                }else{
+                    swal({title: remove_mes , type: 
+                        "error"}).then(function(){ 
+                            location.reload();
+                        }
+                    );
+                }               
+            },
+            error: function(xhr){
+                swal({title: "Error", type: 
+                    "error"}).then(function(){ 
+                        location.reload();
+                    }
+                );
+                console.log(xhr.status);
+            },
+        });
+    }
+
+    jQuery(document).on('click','.push_design',function(){
+        const orderID = jQuery(this).closest('tr.row-tk').find('td.order_id').text();
+        const titleProduct = jQuery(this).closest('tr.row-tk').find('td.product_name').text();
+        const imgProduct = jQuery(this).closest('tr.row-tk').find('td.product_img img').attr('src');
+        const designID = dataDesgin.id;
+        const designName = dataDesgin.text;
+
+        jQuery.ajax({
+            url : mo_localize_script.ajaxurl,
+            type: "post",
+            data: {
+                action: 'save_desgin_name',
+                order_id : orderID,
+                user_name : designName,
+            },
+            success: function(result){ 
+                if( result.data === 1 ){
+                    create_design( orderID, titleProduct, imgProduct, designID );
+                }else{
+                    swal({title: "Error" , type: 
+                        "error"}).then(function(){ 
+                            location.reload();
+                        }
+                    );
+                }      
+            },
+            error: function(xhr){
+                swal({title: "Error", type: 
+                    "error"}).then(function(){ 
+                        location.reload();
+                    }
+                );
+                console.log(xhr.status);
+            },
+        }).done(function() {
+            setTimeout(function(){
+              $("#overlay").fadeOut(300);
+            },500);
+        });
+    })
     
     
 });
