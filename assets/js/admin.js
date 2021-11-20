@@ -1053,7 +1053,7 @@ jQuery(document).ready(function($){
     })
      
 
-    var designName = jQuery('#design_name');
+    var designName = jQuery('.design_name');
     var dataDesgin = {};
     designName.select2({
         ajax: {

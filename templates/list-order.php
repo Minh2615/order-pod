@@ -109,7 +109,7 @@
             <tr class="row-tk">
                 <td><?php echo $i; ?></td>
                 <td class="row_design_name">
-                    <select name="design_name" id="design_name" style="width:200px">
+                    <select name="design_name" class="design_name" style="width:200px">
                         <option value="<?php echo $value->design_name ?? '' ; ?>" selected="selected"><?php echo $value->design_name ?? ''; ?></option>
                     </select>                   
                 </td>
