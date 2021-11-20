@@ -41,8 +41,8 @@ class ManagerOrderAjax {
         add_action( 'wp_ajax_save_note_order_cc_mpo', array( $this, 'save_note_order_cc_mpo' ) );
 		add_action( 'wp_ajax_nopriv_save_note_order_cc_mpo', array( $this, 'save_note_order_cc_mpo' ) );
 
-        // add_action( 'wp_ajax_remove_product_mpo', array( $this, 'remove_product_mpo' ));
-		// add_action( 'wp_ajax_nopriv_remove_product_mpo', array( $this, 'remove_product_mpo'));
+        add_action( 'wp_ajax_remove_product_mpo', array( $this, 'remove_product_mpo' ));
+		add_action( 'wp_ajax_nopriv_remove_product_mpo', array( $this, 'remove_product_mpo'));
 
         add_action( 'wp_ajax_save_note_config_app_mpo', array( $this, 'save_note_config_app_mpo' ));
 		add_action( 'wp_ajax_nopriv_save_note_config_app_mpo', array( $this, 'save_note_config_app_mpo'));
@@ -58,11 +58,11 @@ class ManagerOrderAjax {
 
         //
         add_action('update_new_order_mpo',array($this,'auto_update_new_order_mpo'));
-        //wp_schedule_single_event( time() + 900, 'update_new_order_mpo' );
+        wp_schedule_single_event( time() + 900, 'update_new_order_mpo' );
 
         //
         add_action('update_status_order_mpo',array($this,'auto_update_status_order_mpo'));
-       // wp_schedule_single_event( time() + 1800, 'update_status_order_mpo' );
+        wp_schedule_single_event( time() + 1800, 'update_status_order_mpo' );
 
         //
     
@@ -70,7 +70,7 @@ class ManagerOrderAjax {
         add_action('remove_product_mpo', array($this,'start_remove_product_merchant'),10,4);
         //
         add_action('get_campaign_mpo', array($this,'auto_get_campaign_mpo'));
-       // wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
+        wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
 
         // upload token after 30 days
 
