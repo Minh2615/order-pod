@@ -96,12 +96,23 @@ class ManagerOrderAjax {
     public function save_desgin_name(){
 
         global $wpdb;
+        $respon = new stdClass();
+        $respon->status = '';
 
         $order_id = isset($_POST['order_id']) ? $_POST['order_id'] : '';
         $user_name = isset($_POST['user_name']) ? $_POST['user_name'] : '';
-        
-        $respon = $wpdb->update($wpdb->prefix . 'mpo_order', array('design_name'=>$user_name) ,array( 'order_id' => $order_id ));
+        $result = $wpdb->get_var( $wpdb->prepare("SELECT design_name FROM  `{$wpdb->prefix}mpo_order` WHERE order_id = %s ", $order_id));
 
+        if ( $result == $user_name ) {
+            $respon->status = 'fail';
+            $respon->message = 'Design Name already exist';
+        }else{
+            $wpdb->update($wpdb->prefix . 'mpo_order', array('design_name'=> $user_name) ,array( 'order_id' => $order_id ));
+            $respon->status = 'success';
+            $respon->message = '';
+
+        }
+        
         wp_send_json_success($respon);
     }
 

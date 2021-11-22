@@ -1066,8 +1066,8 @@ jQuery(document).ready(function($){
             processResults( data , params ) {
                 const datas = data.map( ele => {
                     return dataDesgin = {
-                        id: ele.id,
-                        text: ele.name,
+                        id: ele.slug,
+                        text: ele.slug,
                     }
                 });
 
@@ -1087,16 +1087,16 @@ jQuery(document).ready(function($){
     designName.on('select2:select',function(e){
         dataDesgin = e.params.data;
     })
-    const create_design =  (orderID, titleProduct ,imgProduct, designID) => {
+    const create_design =  (orderID, titleProduct ,imgProduct, designName) => {
         //console.log(mo_localize_script.design_rest_url + 'mpo-design/create-design')
         jQuery.ajax({
-            url : 'http://poddes.local/wp-json/mpo-design/create-design',
+            url : 'http://poddes.local/wp-json/mpo-design/create-design', // nhớ sửa
             type: "post",
             data:{
                 mpo_order_id: orderID,
                 mpo_title_product : titleProduct,
                 mpo_img_product : imgProduct,
-                mpo_author: designID
+                mpo_author: designName
             },
             success: function(result){ 
                 if(result.status === "success"){
@@ -1123,14 +1123,13 @@ jQuery(document).ready(function($){
             },
         });
     }
-
+    
     jQuery(document).on('click','.push_design',function(){
         const orderID = jQuery(this).closest('tr.row-tk').find('td.order_id').text();
         const titleProduct = jQuery(this).closest('tr.row-tk').find('td.product_name').text();
         const imgProduct = jQuery(this).closest('tr.row-tk').find('td.product_img img').attr('src');
-        const designID = dataDesgin.id;
-        const designName = dataDesgin.text;
-
+        const designName = jQuery(this).closest('tr.row-tk').find('select.design_name').val();
+        
         jQuery.ajax({
             url : mo_localize_script.ajaxurl,
             type: "post",
@@ -1140,10 +1139,11 @@ jQuery(document).ready(function($){
                 user_name : designName,
             },
             success: function(result){ 
-                if( result.data === 1 ){
-                    create_design( orderID, titleProduct, imgProduct, designID );
+                console.log(result);
+                if( result.data.status == 'success' ){
+                    create_design( orderID, titleProduct, imgProduct, designName );
                 }else{
-                    swal({title: "Error" , type: 
+                    swal({title: result.data.message , type: 
                         "error"}).then(function(){ 
                             location.reload();
                         }
