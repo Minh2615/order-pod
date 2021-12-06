@@ -1,9 +1,9 @@
-<?php 
+<?php
 /**
  * Get other templates passing attributes and including the file.
  *
  * @param string $template_name
- * @param array $args (default: array())
+ * @param array  $args (default: array())
  * @param string $template_path (default: '')
  * @param string $default_path (default: '')
  *
@@ -26,13 +26,19 @@ function mpo_get_templage( $template_name, $args = array(), $template_path = '',
 		return;
 	}
 	// Allow 3rd party plugin filter template file from their plugin
-	$located = apply_filters( 'learn_press_get_template', $located, $template_name, $args, $template_path,
-		$default_path );
+	$located = apply_filters(
+		'learn_press_get_template',
+		$located,
+		$template_name,
+		$args,
+		$template_path,
+		$default_path
+	);
 
 	if ( $located != '' ) {
 		do_action( 'mpo_before_template_part', $template_name, $template_path, $located, $args );
 
-		include( $located );
+		include $located;
 
 		do_action( 'mpo_after_template_part', $template_name, $template_path, $located, $args );
 	}
@@ -67,7 +73,7 @@ function mpo_locate_template( $template_name, $template_path = '', $default_path
 	$template = locate_template(
 		array(
 			trailingslashit( $template_path ) . $template_name,
-			$template_name
+			$template_name,
 		)
 	);
 

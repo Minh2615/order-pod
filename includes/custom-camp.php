@@ -1,85 +1,93 @@
 <?php
 
-class CustomCamPaign{
+class CustomCamPaign {
 
-    private static $instance;
+	private static $instance;
 
-    public static function instance() {
+	public static function instance() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
 	}
-    
 
-    public function __construct(){
 
-        self::init();
-    }
+	public function __construct() {
 
-    public function init(){
-        $this->show_list_camp_mpo();
-        
-    }
+		self::init();
+	}
 
-    public function show_list_camp_mpo(){
+	public function init() {
+		$this->show_list_camp_mpo();
 
-        global $wpdb;
+	}
 
-        $token = isset($_GET['token']) ? $_GET['token'] : '';
-       
-        $camp_id = '';
+	public function show_list_camp_mpo() {
 
-        if (isset($_GET['camp_id']) && isset($_GET['camp_id']) ) {
-            $camp_id = ' WHERE camp_id ='.'"'.$_GET['camp_id'].'"'.'';
-        }
+		global $wpdb;
 
-        if (isset($_GET['pageno'])) {
-            $pageno = $_GET['pageno'];
-        } else {
-            $pageno = 1;
-        }
+		$token = isset( $_GET['token'] ) ? $_GET['token'] : '';
 
-        $param_kv = '';
-        if (isset($_GET['val_search']) && isset($_GET['key_search']) ) {
-            $param_kv = 'AND '.$_GET['key_search'].'='.'"'.$_GET['val_search'].'"'.'';
-        }
+		$camp_id = '';
 
-        $records_per_page = 50;
+		if ( isset( $_GET['camp_id'] ) && isset( $_GET['camp_id'] ) ) {
+			$camp_id = ' WHERE camp_id =' . '"' . $_GET['camp_id'] . '"' . '';
+		}
 
-        $offset = ($pageno-1) * $records_per_page;
+		if ( isset( $_GET['pageno'] ) ) {
+			$pageno = $_GET['pageno'];
+		} else {
+			$pageno = 1;
+		}
 
-        $admin_url = admin_url().'/admin.php?page=mpo_list_campaign';
+		$param_kv = '';
+		if ( isset( $_GET['val_search'] ) && isset( $_GET['key_search'] ) ) {
+			$param_kv = 'AND ' . $_GET['key_search'] . '=' . '"' . $_GET['val_search'] . '"' . '';
+		}
 
-        if(!empty($token)){
-            $admin_url .= '&token='.$token;
-        
-            $query_total = $wpdb->prepare( "SELECT count(camp_id) FROM {$wpdb->prefix}mpo_campaign WHERE access_token = %s AND state_camp <> 'ENDED'" , $token );
-            print_r($query_total);
+		$records_per_page = 50;
 
-            $total_sql = $wpdb->get_var($query_total);
-            
-            $total_pages = ceil($total_sql / $records_per_page);
+		$offset = ( $pageno - 1 ) * $records_per_page;
 
-            $query_data = $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}mpo_campaign WHERE access_token = %s  AND state_camp <> 'ENDED' LIMIT %d , %d", $token , $offset , $records_per_page );
+		$admin_url = admin_url() . '/admin.php?page=mpo_list_campaign';
 
-            $data = $wpdb->get_results($query_data);
+		if ( ! empty( $token ) ) {
+			$admin_url .= '&token=' . $token;
 
-        }else{
-            
-            $total_sql = $wpdb->get_var( "SELECT count(camp_id) FROM {$wpdb->prefix}mpo_campaign $camp_id WHERE state_camp <> 'ENDED'" );    
+			$query_total = $wpdb->prepare( "SELECT count(camp_id) FROM {$wpdb->prefix}mpo_campaign WHERE access_token = %s AND state_camp <> 'ENDED'", $token );
+			print_r( $query_total );
 
-            $total_pages = ceil($total_sql / $records_per_page);
+			$total_sql = $wpdb->get_var( $query_total );
 
-            $query_data = $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}mpo_campaign $camp_id WHERE state_camp <> 'ENDED'  LIMIT %d , %d" , $offset , $records_per_page );
-            
-            $data = $wpdb->get_results($query_data);
+			$total_pages = ceil( $total_sql / $records_per_page );
 
-        }
+			$query_data = $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}mpo_campaign WHERE access_token = %s  AND state_camp <> 'ENDED' LIMIT %d , %d", $token, $offset, $records_per_page );
 
-        mpo_get_templage('list-camp.php',array('data'=>$data,'total_pages'=>$total_pages,'pageno'=>$pageno,'admin_url'=>$admin_url));
+			$data = $wpdb->get_results( $query_data );
 
-    }
+		} else {
+
+			$total_sql = $wpdb->get_var( "SELECT count(camp_id) FROM {$wpdb->prefix}mpo_campaign $camp_id WHERE state_camp <> 'ENDED'" );
+
+			$total_pages = ceil( $total_sql / $records_per_page );
+
+			$query_data = $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}mpo_campaign $camp_id WHERE state_camp <> 'ENDED'  LIMIT %d , %d", $offset, $records_per_page );
+
+			$data = $wpdb->get_results( $query_data );
+
+		}
+
+		mpo_get_templage(
+			'list-camp.php',
+			array(
+				'data'        => $data,
+				'total_pages' => $total_pages,
+				'pageno'      => $pageno,
+				'admin_url'   => $admin_url,
+			)
+		);
+
+	}
 
 }
 

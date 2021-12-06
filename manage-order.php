@@ -12,168 +12,169 @@
 defined( 'ABSPATH' ) || exit;
 
 
-class ManagerOrder{
+class ManagerOrder {
 
-    private static $instance;
-    
-    public static function instance() {
+	private static $instance;
+
+	public static function instance() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
 	}
-    
-    public function __construct(){
-        $this->plugin_defines();
-        self::init();
-    }
 
-    protected function init() {
+	public function __construct() {
+		$this->plugin_defines();
+		self::init();
+	}
 
-        $this->register_menu();
+	protected function init() {
 
-		require_once ( 'includes/ajax.php' );
-        require_once ( 'includes/manage-table.php' );
-        require_once ( 'includes/functions.php' );
-        
-        // add enqueue_scripts
-        if ( is_admin() ) {
+		$this->register_menu();
+
+		require_once 'includes/ajax.php';
+		require_once 'includes/manage-table.php';
+		require_once 'includes/functions.php';
+
+		// add enqueue_scripts
+		if ( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'load_enqueue_scripts_on_admin' ) );
-            
+
 		} else {
-			
+
 		}
 
-        self::init_hook();
-    }
+		self::init_hook();
+	}
 
-    protected static function init_hook() {
+	protected static function init_hook() {
 		register_activation_hook( __FILE__, array( __CLASS__, 'on_activation' ) );
 		register_deactivation_hook( __FILE__, array( __CLASS__, 'on_deactivation' ) );
 
 	}
 
-    public static function on_activation() {
+	public static function on_activation() {
 
-        /**
-         * @var Mpo_Table
-         */
+		/**
+		 * @var Mpo_Table
+		 */
 		$mpoDatabase = Mpo_Table::init();
 		$mpoDatabase->make();
 	}
 
-    public static function on_deactivation() {
+	public static function on_deactivation() {
 
 	}
 
-    protected function plugin_defines() {
-		define( 'MO_PHYS_PATH', trailingslashit( WP_PLUGIN_DIR . '/' . str_replace( basename( __FILE__ ), "", plugin_basename( __FILE__ ) ) ) );
+	protected function plugin_defines() {
+		define( 'MO_PHYS_PATH', trailingslashit( WP_PLUGIN_DIR . '/' . str_replace( basename( __FILE__ ), '', plugin_basename( __FILE__ ) ) ) );
 		define( 'MO_PHYS_URL', plugin_dir_url( __FILE__ ) );
 	}
 
-    public function register_menu(){
-        add_action('admin_menu',array($this,'add_admin_pages')); 
-    }
+	public function register_menu() {
+		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+	}
 
-    public function add_admin_pages(){ 
-        add_menu_page(
-            __( 'Manager Order', 'order_sandbox' ),
-            __( 'Manager Order', 'order_sandbox' ),
-            'manage_options',
-            'manager_order',
-            '',
-            'dashicons-welcome-learn-more',
-            10
-        );
-        add_submenu_page( 
-            'manager_order',
-            __( 'Configs', 'order_sandbox' ),
-            __( 'Configs', 'order_sandbox' ),
-            'manage_options',
-            'manager_order',
-            array($this,'mpo_config_callback'),
-        );
-        add_submenu_page( 
-            'manager_order',
-            __( 'Order', 'order_sandbox' ),
-            __( 'Order', 'order_sandbox' ),
-            'manage_options',
-            'mpo_list_order',
-            array($this,'mpo_list_order_callback'),
-        );
-        add_submenu_page( 
-            'manager_order',
-            __( 'History', 'order_sandbox' ),
-            __( 'History', 'order_sandbox' ),
-            'manage_options',
-            'mpo_order_history',
-            array($this,'mpo_order_history_callback'),
-        );
+	public function add_admin_pages() {
+		add_menu_page(
+			__( 'Manager Order', 'order_sandbox' ),
+			__( 'Manager Order', 'order_sandbox' ),
+			'manage_options',
+			'manager_order',
+			'',
+			'dashicons-welcome-learn-more',
+			10
+		);
+		add_submenu_page(
+			'manager_order',
+			__( 'Configs', 'order_sandbox' ),
+			__( 'Configs', 'order_sandbox' ),
+			'manage_options',
+			'manager_order',
+			array( $this, 'mpo_config_callback' ),
+		);
+		add_submenu_page(
+			'manager_order',
+			__( 'Order', 'order_sandbox' ),
+			__( 'Order', 'order_sandbox' ),
+			'manage_options',
+			'mpo_list_order',
+			array( $this, 'mpo_list_order_callback' ),
+		);
+		add_submenu_page(
+			'manager_order',
+			__( 'History', 'order_sandbox' ),
+			__( 'History', 'order_sandbox' ),
+			'manage_options',
+			'mpo_order_history',
+			array( $this, 'mpo_order_history_callback' ),
+		);
 
-        add_submenu_page( 
-            'manager_order',
-            __( 'Campaign', 'order_sandbox' ),
-            __( 'Campaign', 'order_sandbox' ),
-            'manage_options',
-            'mpo_list_campaign',
-            array($this,'mpo_list_campaign_callback'),
-        );
+		add_submenu_page(
+			'manager_order',
+			__( 'Campaign', 'order_sandbox' ),
+			__( 'Campaign', 'order_sandbox' ),
+			'manage_options',
+			'mpo_list_campaign',
+			array( $this, 'mpo_list_campaign_callback' ),
+		);
 
-    
-    }
+	}
 
-    public function mpo_config_callback(){
-        require_once plugin_dir_path(__FILE__).'/templates/config.php';
-    }
+	public function mpo_config_callback() {
+		require_once plugin_dir_path( __FILE__ ) . '/templates/config.php';
+	}
 
-    public function mpo_list_order_callback(){
-        require_once plugin_dir_path(__FILE__).'/includes/custom-order.php';
-    }
+	public function mpo_list_order_callback() {
+		require_once plugin_dir_path( __FILE__ ) . '/includes/custom-order.php';
+	}
 
-    public function mpo_order_history_callback(){
-        require_once plugin_dir_path(__FILE__).'/includes/history-order.php';
-    }
+	public function mpo_order_history_callback() {
+		require_once plugin_dir_path( __FILE__ ) . '/includes/history-order.php';
+	}
 
-    public function mpo_list_campaign_callback(){
-        require_once plugin_dir_path(__FILE__).'/includes/custom-camp.php';
-    }
-    
-    function load_enqueue_scripts_on_admin() {
-        $v_rand = uniqid();
+	public function mpo_list_campaign_callback() {
+		require_once plugin_dir_path( __FILE__ ) . '/includes/custom-camp.php';
+	}
+
+	function load_enqueue_scripts_on_admin() {
+		$v_rand = uniqid();
 
 		// style
 		wp_enqueue_style( 'mo-phys-bootstrap-reboot', MO_PHYS_URL . 'assets/css/bootstrap-reboot.min.css', array(), '4.0' );
 		wp_enqueue_style( 'mo-phys-bootstrap', MO_PHYS_URL . 'assets/css/bootstrap.min.css', array(), '4.3.1' );
-        wp_enqueue_style( 'mo-phys-jquery-ui-css', MO_PHYS_URL . 'assets/css/jquery-ui.min.css', array(), '1.12.1' );
-        wp_enqueue_style( 'mo-phys-swee-css', MO_PHYS_URL . 'assets/css/sweetalert2.min.css', array(), '7.2.0' );
-        wp_enqueue_style( 'mo-phys-font-css', MO_PHYS_URL . 'assets/css/font-awesome.min.css', array(), '4.7.0' );
-        wp_enqueue_style( 'mo-phys-toggle-css', MO_PHYS_URL . 'assets/css/bootstrap4-toggle.min.css', array(),'3.6.1');
-        wp_enqueue_style( 'mo-phys-admin-css', MO_PHYS_URL . 'assets/css/main-admin.css', array(),$v_rand);
-        wp_enqueue_style( 'mo-phys-select2-css', MO_PHYS_URL . 'assets/css/select2.min.css', array(), '3.6.1' );
-		//wp_register_style( 'gmc-phys-main-css', MO_PHYS_URL . 'assets/css/main-admin.css', array(), '1.0.0' );
+		wp_enqueue_style( 'mo-phys-jquery-ui-css', MO_PHYS_URL . 'assets/css/jquery-ui.min.css', array(), '1.12.1' );
+		wp_enqueue_style( 'mo-phys-swee-css', MO_PHYS_URL . 'assets/css/sweetalert2.min.css', array(), '7.2.0' );
+		wp_enqueue_style( 'mo-phys-font-css', MO_PHYS_URL . 'assets/css/font-awesome.min.css', array(), '4.7.0' );
+		wp_enqueue_style( 'mo-phys-toggle-css', MO_PHYS_URL . 'assets/css/bootstrap4-toggle.min.css', array(), '3.6.1' );
+		wp_enqueue_style( 'mo-phys-admin-css', MO_PHYS_URL . 'assets/css/main-admin.css', array(), $v_rand );
+		wp_enqueue_style( 'mo-phys-select2-css', MO_PHYS_URL . 'assets/css/select2.min.css', array(), '3.6.1' );
+		// wp_register_style( 'gmc-phys-main-css', MO_PHYS_URL . 'assets/css/main-admin.css', array(), '1.0.0' );
 
 		// script
-        wp_enqueue_script( 'mo-phys-select2-js', MO_PHYS_URL . 'assets/js/select2.min.js', array(), '7.2.0', true );
-        wp_enqueue_script( 'mo-phys-papa-js', MO_PHYS_URL . 'assets/js/papaparse.min.js', array(), '5.3.0', true );
-        wp_enqueue_script( 'mo-phys-jquery-ui-js', MO_PHYS_URL . 'assets/js/jquery-ui.min.js', array(), '1.12.1', true );
-        wp_enqueue_script( 'mo-phys-popper-js', MO_PHYS_URL . 'assets/js/popper.min.js', array(), '1.12.9', true );
-        wp_enqueue_script( 'mo-phys-swee-js', MO_PHYS_URL . 'assets/js/sweetalert2.all.min.js', array(), '7.2.0', true );
+		wp_enqueue_script( 'mo-phys-select2-js', MO_PHYS_URL . 'assets/js/select2.min.js', array(), '7.2.0', true );
+		wp_enqueue_script( 'mo-phys-papa-js', MO_PHYS_URL . 'assets/js/papaparse.min.js', array(), '5.3.0', true );
+		wp_enqueue_script( 'mo-phys-jquery-ui-js', MO_PHYS_URL . 'assets/js/jquery-ui.min.js', array(), '1.12.1', true );
+		wp_enqueue_script( 'mo-phys-popper-js', MO_PHYS_URL . 'assets/js/popper.min.js', array(), '1.12.9', true );
+		wp_enqueue_script( 'mo-phys-swee-js', MO_PHYS_URL . 'assets/js/sweetalert2.all.min.js', array(), '7.2.0', true );
 		wp_enqueue_script( 'mo-phys-bootstrap-js', MO_PHYS_URL . 'assets/js/bootstrap.min.js', array(), '4.3.1', true );
-        wp_enqueue_script( 'mo-phys-toggle-js', MO_PHYS_URL . 'assets/js/bootstrap4-toggle.min.js', array(), '3.6.1', true );
-		wp_enqueue_script( 'mo-phys-admin-js', MO_PHYS_URL . 'assets/js/admin.js', array( 'jquery','wp-api-fetch', 'wp-url' ), $v_rand, true );
-        wp_localize_script( 'mo-phys-admin-js', 'mo_localize_script',
-            array( 
-                'ajaxurl' => admin_url( 'admin-ajax.php' ),
-                'page_order'=>get_site_url() .'/wp-admin/admin.php?page=mpo_list_order',
-                'page_history'=>get_site_url() .'/wp-admin/admin.php?page=mpo_order_history',
-                'page_camp'=>get_site_url() .'/wp-admin/admin.php?page=mpo_list_campaign',
-                'rest_url' => get_rest_url(),
-                'design_rest_url' => 'http://poddes.local/wp-json/' //nho sua
-            )
-        );  
+		wp_enqueue_script( 'mo-phys-toggle-js', MO_PHYS_URL . 'assets/js/bootstrap4-toggle.min.js', array(), '3.6.1', true );
+		wp_enqueue_script( 'mo-phys-admin-js', MO_PHYS_URL . 'assets/js/admin.js', array( 'jquery', 'wp-api-fetch', 'wp-url' ), $v_rand, true );
+		wp_localize_script(
+			'mo-phys-admin-js',
+			'mo_localize_script',
+			array(
+				'ajaxurl'         => admin_url( 'admin-ajax.php' ),
+				'page_order'      => get_site_url() . '/wp-admin/admin.php?page=mpo_list_order',
+				'page_history'    => get_site_url() . '/wp-admin/admin.php?page=mpo_order_history',
+				'page_camp'       => get_site_url() . '/wp-admin/admin.php?page=mpo_list_campaign',
+				'rest_url'        => get_rest_url(),
+				'design_rest_url' => 'http://poddes.local/wp-json/', // nho sua
+			)
+		);
 	}
 
-    
+
 }
 
 $manager_order = ManagerOrder::instance();

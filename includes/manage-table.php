@@ -1,17 +1,17 @@
-<?php 
+<?php
 
 
-class Mpo_Table{
+class Mpo_Table {
 
 	private $_wpdb;
 	private $_charset_collate = '';
 	private static $_instance;
 
-    private function __construct() {
+	private function __construct() {
 		global $wpdb;
 
 		// include what needs to be included
-		require_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// assign the global wpdb to a variable
 		$this->_wpdb = &$wpdb;
@@ -22,20 +22,20 @@ class Mpo_Table{
 		}
 	}
 
-    public static function init() {
+	public static function init() {
 		if ( is_null( self::$_instance ) ) {
 			self::$_instance = new self();
 		}
 
 		return self::$_instance;
 	}
-    public function make() {
+	public function make() {
 		// make the tables
 		$this->make_or_update_the_tables();
 
 	}
 
-    private function make_or_update_the_tables() {
+	private function make_or_update_the_tables() {
 		$this->mpo_config();
 		$this->mpo_order();
 		$this->mpo_product();
@@ -48,8 +48,8 @@ class Mpo_Table{
 		$this->addColumnProductIdCamp();
 		$this->addColumnDesignName();
 	}
-		
-	private function addColumnDesignName(){
+
+	private function addColumnDesignName() {
 
 		global $wpdb;
 
@@ -58,10 +58,10 @@ class Mpo_Table{
 		$sql = "ALTER TABLE $table_name
 				ADD design_name varchar(255) AFTER custom_note_cc";
 
-		$wpdb->query($sql);
+		$wpdb->query( $sql );
 	}
 
-	private function addColumnExpiryTimeConfigMpo(){
+	private function addColumnExpiryTimeConfigMpo() {
 
 		global $wpdb;
 
@@ -70,10 +70,10 @@ class Mpo_Table{
 		$sql = "ALTER TABLE $table_name
 				ADD expiry_time varchar(255) AFTER name_app";
 
-		$wpdb->query($sql);
+		$wpdb->query( $sql );
 	}
 
-	private function addColumnRefeshTokenConfigMpo(){
+	private function addColumnRefeshTokenConfigMpo() {
 
 		global $wpdb;
 
@@ -82,10 +82,10 @@ class Mpo_Table{
 		$sql = "ALTER TABLE $table_name
 				ADD refesh_token varchar(255) AFTER access_token";
 
-		$wpdb->query($sql);
+		$wpdb->query( $sql );
 	}
 
-    private function mpo_config() {
+	private function mpo_config() {
 		$table_name = $this->_wpdb->prefix . 'mpo_config';
 
 		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -100,7 +100,7 @@ class Mpo_Table{
 		dbDelta( $sql );
 	}
 
-    private function mpo_order() {
+	private function mpo_order() {
 		$table_name = $this->_wpdb->prefix . 'mpo_order';
 
 		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -176,13 +176,11 @@ class Mpo_Table{
 				PRIMARY KEY (id)
 			) " . $this->_charset_collate . ';';
 
-
-
 		dbDelta( $sql );
 	}
 
-	
-	private function mpo_campaign(){
+
+	private function mpo_campaign() {
 		$table_name = $this->_wpdb->prefix . 'mpo_campaign';
 
 		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -221,9 +219,7 @@ class Mpo_Table{
 			PRIMARY KEY (id)
 		) " . $this->_charset_collate . ';';
 
-
-
-	dbDelta( $sql );
+		dbDelta( $sql );
 	}
 
 	private function mpo_skuProduct() {
@@ -247,7 +243,7 @@ class Mpo_Table{
 		$sql = "ALTER TABLE $table_name
 				ADD note_app varchar(255) AFTER name_app";
 
-		$wpdb->query($sql);
+		$wpdb->query( $sql );
 	}
 
 	private function addColumnNameCampaign() {
@@ -258,7 +254,7 @@ class Mpo_Table{
 		$sql = "ALTER TABLE $table_name
 				ADD camp_id varchar(255) AFTER product_id";
 
-		$wpdb->query($sql);
+		$wpdb->query( $sql );
 	}
 
 	private function addColumnProductIdCamp() {
@@ -269,6 +265,6 @@ class Mpo_Table{
 		$sql = "ALTER TABLE $table_name
 				ADD product_id_camp varchar(255) AFTER product_name";
 
-		$wpdb->query($sql);
+		$wpdb->query( $sql );
 	}
 }
