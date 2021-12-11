@@ -617,7 +617,6 @@ jQuery(document).ready(function($){
         });
         var name_file = jQuery(this).closest('.frmCSVImport').find('input[name="file_product"]').val().replace(/C:\\fakepath\\/i, '');
         var token = jQuery(this).closest('.frmCSVImport').find('input[name="access_token"]').val();
-        var action_form = jQuery(this).closest('.frmCSVImport').find('select[name="action_form"]').val();
         var client_id = jQuery(this).closest('.frmCSVImport').find('input[name="client_id"]').val();
         var name_store = jQuery(this).closest('.frmCSVImport').find('input[name="name_store"]').val();
 
@@ -627,31 +626,25 @@ jQuery(document).ready(function($){
                     var data_csv = results.data;  
                     var newDataLength = 0;
 
-                    run_import( data_csv, newDataLength, name_file, token , action_form , client_id , name_store);            
+                    run_import( data_csv, newDataLength, name_file, token , client_id , name_store);            
                 }
             },
         });
     });
 
-    function run_import( data_csv, newDataLength, name_file, token , action_form , client_id , name_store) {
+    function run_import( data_csv, newDataLength, name_file, token , client_id , name_store) {
 
         var newData = data_csv.slice( newDataLength, newDataLength + 20);
-        var action_ajax = '';
-        if(action_form = 'upload_product'){
-            action_ajax = 'start_upload_product_merchant';
-        }else{
-            action_ajax = 'start_remove_product_merchant';
-        }
+
         jQuery.ajax({
             url : mo_localize_script.ajaxurl,
             cache: false,
             type: "POST",
             data: {
-                action: action_ajax,
+                action: 'start_remove_product_merchant',
                 data_csv: JSON.stringify( newData ),
                 name_file : name_file,
-                access_token : token,
-                action_form: action_form,       
+                access_token : token,    
             },
             success: function( result ){
                 setTimeout(function(){
@@ -661,7 +654,7 @@ jQuery(document).ready(function($){
                 var dataCsv = data_csv;
                 newDataLength = newDataLength + 20;
                 if ( newDataLength <= dataCsv.length ) {
-                    run_import( dataCsv, newDataLength, name_file, token , action_form , client_id , name_store);
+                    run_import( dataCsv, newDataLength, name_file, token , client_id , name_store);
                 }else{
                     var dt = new Date();
                     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
