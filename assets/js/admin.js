@@ -612,9 +612,9 @@ jQuery(document).ready(function($){
 
    
     jQuery(document).on('click','.submit_csv',function(){
-        jQuery(document).ajaxSend(function() {
-            jQuery("#overlay").fadeIn(300);　
-        });
+        // jQuery(document).ajaxSend(function() {
+        //     jQuery("#overlay").fadeIn(300);　
+        // });
         var name_file = jQuery(this).closest('.frmCSVImport').find('input[name="file_product"]').val().replace(/C:\\fakepath\\/i, '');
         var token = jQuery(this).closest('.frmCSVImport').find('input[name="access_token"]').val();
         var client_id = jQuery(this).closest('.frmCSVImport').find('input[name="client_id"]').val();
@@ -646,28 +646,29 @@ jQuery(document).ready(function($){
                 name_file : name_file,
                 access_token : token,    
             },
+            beforeSend: function() {
+                jQuery("#overlay").fadeIn(300);　
+            },
             success: function( result ){
-                setTimeout(function(){
-                    $("#overlay").fadeOut(300);
-                },500);
-                
+                var dt = new Date();
+                var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
                 var dataCsv = data_csv;
                 newDataLength = newDataLength + 20;
+                let message = result.data.message ? 'Upload False : ' + result.data.message : 'Upload Success';
+
                 if ( newDataLength <= dataCsv.length ) {
+                    jQuery('.content-cmt').prepend('<p class="text-success"> - File: '+ name_file + ' - ' +  message + ' by ' + name_store +' at : ' + time + '</p>');
                     run_import( dataCsv, newDataLength, name_file, token , client_id , name_store);
                 }else{
-                    var dt = new Date();
-                    var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-                    jQuery('.content-cmt').append('<p class="text-success"> - Upload File: '+ name_file + ' Success by: ' + name_store +' at : ' + time + '</p>');
+                    $("#overlay").fadeOut(300);
                     save_messages(name_file,client_id , name_store);
-                    console.log(result);
+                    swal({title:"Success", type: 
+                        "success"});
                 }    
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload(true);
-                    });
+                    "error"});
                 
                 console.log(xhr.status);
             },
@@ -1157,6 +1158,16 @@ jQuery(document).ready(function($){
             },500);
         });
     })
+
+    //click show info order
+    jQuery(document).on('click','.show-pc',function(){
+        jQuery("table .hidden-pc").toggleClass("block");
+    })   
+
+     //click show note order
+    jQuery(document).on('click','.show-note',function(){
+        jQuery("table .hidden-note").toggleClass("block");
+    })   
     
     
 });

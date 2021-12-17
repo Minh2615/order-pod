@@ -71,30 +71,36 @@
 				<th scope="col"><?php echo __( 'Campaign', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'App Name', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Date', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Order ID', 'order_sandbox' ); ?></th>
+				<th scope="col" style="display:none">Order ID</th>
 				<th scope="col">
 					<?php echo __( 'Days to Fulfill', 'order_sandbox' ); ?>
 					<span class="short_day"><i class="fa fa-caret-up" aria-hidden="true"></i></span>
 				</th>    
-				<th scope="col"><?php echo __( 'View Product (SKU)', 'order_sandbox' ); ?></th>
+				<th scope="col" style="display:none"><?php echo __( 'View Product (SKU)', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Product Name', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Image', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Variation', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Currency Code', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Price', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Cost', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Shipping', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Shipping Cost', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Quantity', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Total Cost', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Warehouse Name (Warehouse Id)', 'order_sandbox' ); ?></th>
+				<th scope="col" class="show-pc" >
+					<?php echo __( 'Image', 'order_sandbox' ); ?>
+					<span class="show-pc" style="color:red"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+				</th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Variation', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Currency Code', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Price', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Cost', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Shipping', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Shipping Cost', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Quantity', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Total Cost', 'order_sandbox' ); ?></th>
+				<th class="hidden-pc" scope="col"><?php echo __( 'Warehouse Name (Warehouse Id)', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Ship to', 'order_sandbox' ); ?></th>
 				<!-- <th scope="col"><?php // echo __( 'Open Tickets', 'order_sandbox' ); ?></th> -->
-				<th scope="col"><?php echo __( 'Note', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'NoteCC', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Tracking Number', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Tracking Provider', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Country Code', 'order_sandbox' ); ?></th>
+				<th scope="col" class="show-note">
+					<?php echo __( 'Note', 'order_sandbox' ); ?>
+					<span class="show-note" style="color:red"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+				</th>
+				<th class="hidden-note" scope="col"><?php echo __( 'NoteCC', 'order_sandbox' ); ?></th>
+				<th class="hidden-note" scope="col"><?php echo __( 'Tracking Number', 'order_sandbox' ); ?></th>
+				<th class="hidden-note" scope="col"><?php echo __( 'Tracking Provider', 'order_sandbox' ); ?></th>
+				<th class="hidden-note" scope="col"><?php echo __( 'Country Code', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Actions', 'order_sandbox' ); ?></th>
 			</tr>
 		</thead>
@@ -133,25 +139,29 @@
 				<td class="access_token" style="display:none"><?php echo $value->access_token; ?></td>
 				<td class="product_id_camp" style="display:none"><?php echo $value->product_id_camp; ?></td>
 				<td scope="row"><?php echo $query_app_name[0] ? $query_app_name[0]->name_app : ''; ?></td>
-				<td scope="row"><?php echo $value->order_time; ?></td>
-				<td class="order_id"><?php echo $value->order_id; ?></td>
+				<td scope="row">
+					<div><b>Date : </b><?php echo $value->order_time; ?></div>
+					<div><b>OrderID : </b><?php echo $value->order_id; ?></div>
+					<div><b>SKU : </b><?php echo $value->product_id; ?></div>
+				</td>
+				<td class="order_id" style="display:none;"><?php echo $value->order_id; ?></td>
 				<td class="day_to_ful ful_<?php echo $i; ?>">
 					<span>
 						<?php echo $value->hours_to_fulfill; ?>
 					</span>
 				</td>
-				<td class="product_sku"><?php echo $value->product_id; ?></td>
+				<td class="product_sku" style="display:none"><?php echo $value->product_id; ?></td>
 				<td class="product_name"><?php echo $value->product_name; ?></td>
 				<td class="product_img"><img src="<?php echo $value->product_image_url; ?>" alt="" width="60" height="60"></td>
-				<td>size: <span class="product_size"><?php echo $value->size; ?></span>, color: <span class="product_color"><?php echo $value->color; ?></span> </td>
-				<td class="order_currency_code"><?php echo $value->currency_code; ?></td>
-				<td><?php echo $value->price . $symbols; ?></td>
-				<td><?php echo $value->cost . $symbols; ?></td>
-				<td><?php echo $value->shipping . $symbols; ?></td>
-				<td><?php echo $value->shipping_cost . $symbols; ?></td>
-				<td class="order_quantity"><?php echo $value->quantity; ?></td>
-				<td><?php echo $value->order_total . $symbols; ?></td>
-				<td><?php echo $value->warehouse_name; ?>, <?php echo $value->warehouse_id; ?> </td>
+				<td class="hidden-pc">size: <span class="product_size"><?php echo $value->size; ?></span>, color: <span class="product_color"><?php echo $value->color; ?></span> </td>
+				<td class="order_currency_code hidden-pc"><?php echo $value->currency_code; ?></td>
+				<td class="hidden-pc"><?php echo $value->price . $symbols; ?></td>
+				<td class="hidden-pc"><?php echo $value->cost . $symbols; ?></td>
+				<td class="hidden-pc"><?php echo $value->shipping . $symbols; ?></td>
+				<td class="hidden-pc"><?php echo $value->shipping_cost . $symbols; ?></td>
+				<td class="order_quantity hidden-pc"><?php echo $value->quantity; ?></td>
+				<td class="hidden-pc"><?php echo $value->order_total . $symbols; ?></td>
+				<td class="hidden-pc"><?php echo $value->warehouse_name; ?>, <?php echo $value->warehouse_id; ?> </td>
 				<td>
 					<div class="content-shiping">
 						<p class="view_shiping">View</a>
@@ -171,19 +181,19 @@
 						<?php echo $value->custom_note; ?>
 					</textarea>
 				</td>
-				<td class="row_order_note note_cc">
+				<td class="row_order_note note_cc hidden-note">
 					<span class="icon_note_cc"><i class="fa fa-pencil-square" aria-hidden="true"></i></span>
 					<textarea class="order_note_cc" name="order_note_cc" cols="20">
 						<?php echo $value->custom_note_cc; ?>
 					</textarea>
 				</td>
-				<td>        
+				<td class="hidden-note">        
 					<input id="track_id" type="text" class="form-control" placeholder="Tracking id " value="<?php echo $value->tracking_number ? $value->tracking_number : ''; ?>">
 				</td>
-				<td>        
+				<td class="hidden-note">        
 					<input id="track_provider" type="text" class="form-control" placeholder="Provider " value="<?php echo $value->tracking_provider ? $value->tracking_provider : ''; ?>">
 				</td>
-				<td>        
+				<td class="hidden-note">        
 					<input id="country_code" type="text" class="form-control" placeholder="Code" value="<?php echo $value->country_code ? $value->country_code : ''; ?>">
 				</td>
 				<td>

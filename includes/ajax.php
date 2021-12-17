@@ -451,7 +451,7 @@ class ManagerOrderAjax {
 	public function start_remove_product_merchant() {
 		global $wpdb;
 		$list_product = json_decode( stripslashes( $_POST['data_csv'] ) );
-		$token        = ! empty( $_POST['access_token'] ) ?? '';
+		$token        = $_POST['access_token'];
 
 		foreach ( $list_product as $key => $value ) {
 			$point_remove = 'https://merchant.wish.com/api/v2/product/remove';
@@ -459,7 +459,7 @@ class ManagerOrderAjax {
 			if ( $key > 0 ) {
 
 				$request = array(
-					'access_token' => '728581bb9bc74023bc3ae43395b7e097',
+					'access_token' => $token,
 					'parent_sku'   => $value[5],
 				);
 
