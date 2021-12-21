@@ -238,17 +238,39 @@ class ManagerOrderAjax {
 
 	public function request_list_order_mpo( $token, $client_id ) {
 
+		$max_time = date( 'Y-m-d\TH:i:s\Z', time() );
+		$min_time = date( 'Y-m-d\TH:i:s\Z', strtotime( '-3 days', time() ) );
+
 		$request = array(
-			'access_token' => $token,
+			'released_at_min' => $min_time,
+			'released_at_max' => $max_time,
+			'updated_at_min'  => $min_time,
+			'updated_at_max'  => $max_time,
+			'limit'           => 100,
 		);
 
-		$api_endpoint = 'https://merchant.wish.com/api/v2/order/multi-get';
+		$point = 'https://merchant.wish.com/api/v3/orders';
 
-		$respons = $this->request_manager_order( $api_endpoint, $request, 'GET' );
+		$response = wp_remote_request(
+			$point,
+			array(
+				'method'      => 'GET',
+				'headers'     => array(
+					'authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'        => $request,
+				'timeout'     => 70,
+				'sslverify'   => false,
+				'data_format' => 'body',
+			)
+		);
 
-		$this->update_db_order_mpo( $respons, $token, $client_id );
+		$parsed_response = json_decode( $response['body'] );
 
-		return $respons;
+		$this->update_db_order_mpo( $parsed_response, $token, $client_id );
+
+		return $parsed_response;
 
 	}
 	public function get_order_paginate_mpo( $url, $token, $client_id ) {
@@ -271,53 +293,55 @@ class ManagerOrderAjax {
 		$arr_order = $wpdb->get_results( "SELECT DISTINCT order_id FROM {$wpdb->prefix}mpo_order" );
 
 		foreach ( $arr_order as $value ) {
-			$list_order[] = $value->order_id;
+			$list_order[] = $value->id;
 		}
 
 		foreach ( $data as $value ) {
-			if ( ! in_array( $value->Order->order_id, $list_order ) ) {
+			if ( ! in_array( $value->id, $list_order ) ) {
 				$wpdb->replace(
 					$wpdb->prefix . 'mpo_order',
 					array(
-						'order_id'           => $value->Order->order_id,
+						'order_id'           => $value->id,
 						'client_id'          => $client_id,
 						'access_token'       => $token,
-						'order_time'         => $value->Order->order_time,
-						'hours_to_fulfill'   => $value->Order->hours_to_fulfill,
-						'transaction_id'     => $value->Order->transaction_id,
-						'product_id'         => $value->Order->sku,
-						'product_name'       => $value->Order->product_name,
-						'product_image_url'  => $value->Order->product_image_url,
-						'size'               => $value->Order->size,
-						'color'              => $value->Order->color,
-						'currency_code'      => $value->Order->currency_code,
-						'price'              => $value->Order->price,
-						'status_order'       => $value->Order->state,
-						'cost'               => $value->Order->cost,
-						'shipping'           => $value->Order->shipping,
-						'shipping_cost'      => $value->Order->shipping_cost,
-						'quantity'           => $value->Order->quantity,
-						'order_total'        => $value->Order->order_total,
-						'warehouse_name'     => $value->Order->MerchantWarehouseDetails->merchant_warehouse_name,
-						'warehouse_id'       => $value->Order->MerchantWarehouseDetails->merchant_warehouse_id,
-						'shipping_name'      => $value->Order->ShippingDetail->name,
-						'shipping_country'   => $value->Order->ShippingDetail->country,
-						'shipping_phone'     => $value->Order->ShippingDetail->phone_number,
-						'shipping_zipcode'   => $value->Order->ShippingDetail->zipcode,
-						'shipping_address_1' => $value->Order->ShippingDetail->street_address1,
-						'shipping_address_2' => $value->Order->ShippingDetail->street_address2,
-						'shipping_state'     => $value->Order->ShippingDetail->state,
-						'shipping_city'      => $value->Order->ShippingDetail->city,
-						'shipped_date'       => $value->Order->shipped_date,
-						'tracking_confirmed' => $value->Order->tracking_confirmed,
-						'product_id_camp'    => $value->Order->product_id,
+						'order_time'         => $value->released_at,
+						'hours_to_fulfill'   => $value->fulfillment_requirements->expected_ship_time,
+						'transaction_id'     => $value->transaction_id,
+						'product_id'         => $value->product_information->sku,
+						'product_name'       => $value->product_information->name,
+						'product_image_url'  => $value->product_information->variation_image_url,
+						'size'               => $value->product_information->size,
+						'color'              => $value->product_information->color,
+						'currency_code'      => $value->order_payment->general_payment_details->payment_total->currency_code,
+						'price'              => $value->order_payment->general_payment_details->product_price->amount,
+						'status_order'       => $value->state,
+						'cost'               => $value->order_payment->general_payment_details->product_merchant_payment->amount,
+						'shipping'           => $value->order_payment->general_payment_details->product_shipping_price->amount,
+						'shipping_cost'      => $value->order_payment->general_payment_details->shipping_merchant_payment->amount,
+						'quantity'           => $value->order_payment->general_payment_details->product_quantity,
+						'order_total'        => $value->order_payment->general_payment_details->payment_total->amount,
+						'warehouse_name'     => $value->warehouse_information->warehouse_name,
+						'warehouse_id'       => $value->warehouse_information->warehouse_id,
+						'shipping_name'      => $value->full_address->shipping_detail->name,
+						'shipping_country'   => $value->full_address->shipping_detail->country_code,
+						'shipping_phone'     => $value->full_address->shipping_detail->phone_number->number,
+						'shipping_zipcode'   => $value->full_address->shipping_detail->zipcode,
+						'shipping_address_1' => $value->full_address->shipping_detail->street_address1,
+						'shipping_state'     => $value->full_address->shipping_detail->state,
+						'shipping_city'      => $value->full_address->shipping_detail->city,
+						'shipped_date'       => $value->fulfillment_requirements->expected_ship_time,
+						// 'tracking_confirmed' => $value->tracking_information->tracking_confirmed,
+						'product_id_camp'    => $value->product_information->id,
+						'tracking_number'    => $value->tracking_information[0]->tracking_number ?? '',
+						'tracking_provider'  => $value->tracking_information[0]->shipping_provider->name ?? '',
+						'country_code'       => $value->tracking_information[0]->origin_country ?? '',
 					)
 				);
 			} else {
 				$wpdb->update(
 					$wpdb->prefix . 'mpo_order',
 					array( 'access_token' => $token ),
-					array( 'order_id' => $value->Order->order_id )
+					array( 'order_id' => $value->id )
 				);
 			}
 		};
@@ -340,37 +364,45 @@ class ManagerOrderAjax {
 		$track_provider = isset( $_POST['track_provider'] ) ? $_POST['track_provider'] : '';
 		$country_code   = isset( $_POST['country_code'] ) ? $_POST['country_code'] : '';
 
-		$api_endpoint = 'https://merchant.wish.com/api/v2/order/fulfill-one';
-
 		$token = $wpdb->get_var( "SELECT access_token FROM {$wpdb->prefix}mpo_order WHERE order_id = '{$order_id}'" );
 
-		$request = array(
-			'access_token'        => $token,
-			'id'                  => $order_id,
-			'tracking_provider'   => $track_provider,
-			'tracking_number'     => $track_id,
-			'origin_country_code' => $country_code,
-		);
-		$respon  = $this->request_manager_order( $api_endpoint, $request, 'POST' );
-
-		$new_order    = $this->request_update_order_mpo( $order_id, $token );
-		$data         = $new_order->data;
-		$status_order = $data->Order->state;
-		$shipped_date = $data->Order->shipped_date;
-
-		$wpdb->update(
-			$wpdb->prefix . 'mpo_order',
+		$point    = 'https://merchant.wish.com/api/v3/orders/{id}/tracking';
+		$response = wp_remote_post(
+			$point,
 			array(
-				'tracking_number'   => $track_id,
-				'tracking_provider' => $track_provider,
-				'country_code'      => $country_code,
-				'status_order'      => $status_order,
-				'shipped_date'      => $shipped_date,
-			),
-			array( 'order_id' => $order_id )
+				'method'      => 'POST',
+				'headers'     => array(
+					'authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'        => "{\"origin_country\":\"{$country_code}\",\"shipping_provider\":\"{$track_provider}\",\"tracking_number\":\"{$track_id}\"}",
+				'timeout'     => 70,
+				'sslverify'   => false,
+				'data_format' => 'body',
+			)
 		);
 
-		wp_send_json_success( $respon );
+		$parsed_response = json_decode( $response['body'] );
+
+		if ( empty( $parsed_response->message ) ) {
+			$new_order    = $this->request_update_order_mpo( $order_id, $token );
+			$data_new     = $new_order->data;
+			$status_order = $data_new->data[0]->state;
+			$shipped_date = $data_new->data[0]->fulfillment_requirements->expected_delivery_time;
+			$wpdb->update(
+				$wpdb->prefix . 'mpo_order',
+				array(
+					'tracking_number'   => $track_id,
+					'tracking_provider' => $track_provider,
+					'country_code'      => $country_code,
+					'status_order'      => $status_order,
+					'shipped_date'      => $shipped_date,
+				),
+				array( 'order_id' => $order_id )
+			);
+		}
+
+		wp_send_json_success( $parsed_response );
 
 		die();
 	}
@@ -387,11 +419,12 @@ class ManagerOrderAjax {
 		$list_order = $wpdb->get_results( "SELECT DISTINCT access_token , order_id FROM {$wpdb->prefix}mpo_order WHERE status_order IS NOT NULL OR status_order != ''" );
 
 		foreach ( $list_order as $value ) {
-			$respon       = $this->request_update_order_mpo( $value->order_id, $value->access_token );
-			$data         = $respon->data;
-			$order_id     = $data->Order->order_id;
-			$status_order = $data->Order->state;
-			$shipped_date = $data->Order->shipped_date;
+			$new_order    = $this->request_update_order_mpo( $value->order_id, $value->access_token );
+			$data_new     = $new_order->data;
+			$order_id     = $data_new->id;
+			$status_order = $data_new->data[0]->state;
+			$shipped_date = $data_new->data[0]->fulfillment_requirements->expected_delivery_time;
+
 			$this->update_status_db_order_mpo( $status_order, $shipped_date, $order_id );
 
 		}
@@ -411,14 +444,29 @@ class ManagerOrderAjax {
 	}
 
 	public function request_update_order_mpo( $order_id, $token ) {
-		$api_endpoint = 'https://merchant.wish.com/api/v2/order';
-		$request      = array(
-			'access_token' => $token,
-			'id'           => $order_id,
-		);
-		$respon       = $this->request_manager_order( $api_endpoint, $request, 'GET' );
 
-		return $respon;
+		$point    = 'https://merchant.wish.com/api/v3/orders/{id}';
+		$request  = array(
+			'id' => $order_id,
+		);
+		$response = wp_remote_request(
+			$point,
+			array(
+				'method'      => 'GET',
+				'headers'     => array(
+					'authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'        => $request,
+				'timeout'     => 70,
+				'sslverify'   => false,
+				'data_format' => 'body',
+			)
+		);
+
+		$parsed_response = json_decode( $response['body'] );
+
+		return $parsed_response;
 	}
 
 	public function remove_app_config() {

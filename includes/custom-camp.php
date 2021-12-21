@@ -55,7 +55,6 @@ class CustomCamPaign {
 			$admin_url .= '&token=' . $token;
 
 			$query_total = $wpdb->prepare( "SELECT count(camp_id) FROM {$wpdb->prefix}mpo_campaign WHERE access_token = %s AND state_camp <> 'ENDED'", $token );
-			print_r( $query_total );
 
 			$total_sql = $wpdb->get_var( $query_total );
 

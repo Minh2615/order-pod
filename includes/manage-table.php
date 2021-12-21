@@ -112,7 +112,7 @@ class Mpo_Table {
 				tracking_provider text,
 				country_code text,
 				order_time varchar(255),
-                hours_to_fulfill int,
+                hours_to_fulfill varchar(255),
                 product_id varchar(255),
 				product_name varchar(255),
 				product_image_url varchar(255),

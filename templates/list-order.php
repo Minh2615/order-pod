@@ -107,15 +107,24 @@
 		<tbody>
 		<?php
 		$currency_symbols = mpo_currency_symbols();
-		$list_time_down   = array();
 		$i                = 1;
 		global $wpdb;
 		foreach ( $data as $value ) {
 
-			$symbols          = array_key_exists( $value->currency_code, $currency_symbols ) ? $currency_symbols[ $value->currency_code ] : '';
-			$list_time_down[] = array( $value->hours_to_fulfill, $value->order_time );
-
+			$symbols        = array_key_exists( $value->currency_code, $currency_symbols ) ? $currency_symbols[ $value->currency_code ] : '';
 			$query_app_name = $wpdb->get_results( "SELECT name_app FROM {$wpdb->prefix}mpo_config WHERE access_token = '{$value->access_token}'" );
+			$time_fill      = human_time_diff( time(), strtotime( $value->hours_to_fulfill ) );
+
+			$class_time_fill = 'alert-warning';
+			$array_time_fill = explode( ' ', $time_fill );
+
+			if ( $array_time_fill[0] <= 24 && $array_time_fill[1] == 'hours' ) {
+				$class_time_fill = 'alert-danger';
+			};
+			if ( strtotime( $value->hours_to_fulfill ) < time() ) {
+				$time_fill = '0 hours';
+			}
+
 			?>
 			
 			<tr class="row-tk">
@@ -138,7 +147,7 @@
 				</td>
 				<td class="access_token" style="display:none"><?php echo $value->access_token; ?></td>
 				<td class="product_id_camp" style="display:none"><?php echo $value->product_id_camp; ?></td>
-				<td scope="row"><?php echo $query_app_name[0] ? $query_app_name[0]->name_app : ''; ?></td>
+				<td scope="row"><?php echo ! empty( $query_app_name[0] ) ? $query_app_name[0]->name_app : ''; ?></td>
 				<td scope="row">
 					<div><b>Date : </b><?php echo $value->order_time; ?></div>
 					<div><b>OrderID : </b><?php echo $value->order_id; ?></div>
@@ -146,8 +155,8 @@
 				</td>
 				<td class="order_id" style="display:none;"><?php echo $value->order_id; ?></td>
 				<td class="day_to_ful ful_<?php echo $i; ?>">
-					<span>
-						<?php echo $value->hours_to_fulfill; ?>
+					<span class="<?php echo $class_time_fill; ?>">
+						<?php echo $time_fill; ?>
 					</span>
 				</td>
 				<td class="product_sku" style="display:none"><?php echo $value->product_id; ?></td>
@@ -207,34 +216,6 @@
 		<?php $i++;} ?>
 		</tbody>
 	</table>
-	<script>
-		jQuery(document).ready(function(){
-				<?php foreach ( $list_time_down as $class => $value ) { ?>
-
-					var start_order_<?php echo $class; ?> = <?php echo strtotime( $value[1] ); ?>;
-					var now_<?php echo $class; ?> = <?php echo time(); ?> * 1000;
-					var hours_ful_<?php echo $class; ?> = jQuery('td.ful_<?php echo $class; ?> span').html() * 3600;
-					var countDownDate_<?php echo $class; ?> = (start_order_<?php echo $class; ?>  + hours_ful_<?php echo $class; ?>) * 1000;
-					var distance_<?php echo $class; ?> = countDownDate_<?php echo $class; ?> - now_<?php echo $class; ?>;
-					var days_<?php echo $class; ?> = Math.floor(distance_<?php echo $class; ?> / (1000 * 60 * 60 * 24));
-					var hours_<?php echo $class; ?> = Math.floor((distance_<?php echo $class; ?> % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-				  
-					if(distance_<?php echo $class; ?> > 0 && days_<?php echo $class; ?> >= 1){
-						jQuery('td.ful_<?php echo $class; ?> span').addClass('alert-warning');
-						jQuery('td.ful_<?php echo $class; ?> span').html(days_<?php echo $class; ?> + ' calendar days' );
-					}
-					if(distance_<?php echo $class; ?> > 0 && days_<?php echo $class; ?> < 1  && 0 <= hours_<?php echo $class; ?> <= 24){
-						jQuery('td.ful_<?php echo $class; ?> span').addClass('alert-danger');
-						jQuery('td.ful_<?php echo $class; ?> span').html( hours_<?php echo $class; ?> + ' hours');
-					}
-					if(distance_<?php echo $class; ?> < 0) {
-						jQuery('td.ful_<?php echo $class; ?> span').addClass('alert-danger');
-						jQuery('td.ful_<?php echo $class; ?> span').html('0 hours');
-					}
-				
-			<?php } ?>
-		});
-	</script>
 	<nav class="mt-5">
 		 <ul class="pagination">
 			<?php for ( $i = 1;$i <= $total_pages;$i++ ) : ?>

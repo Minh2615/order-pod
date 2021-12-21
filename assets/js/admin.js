@@ -108,7 +108,6 @@ jQuery(document).ready(function($){
                 client_id : client_id,
             },
             success: function(result){
-                console.log(result);
                 var data = result.data;
                 if(Array.isArray(data.data) && data.data != ''){
                     swal({title: "Success", type: 
@@ -117,7 +116,7 @@ jQuery(document).ready(function($){
                         }
                     );
                 }else{
-                    swal({title:"Empty Orders" , type: 
+                    swal({title: result.data.message , type: 
                         "error"}).then(function(){ 
                             location.reload();
                         }
@@ -340,7 +339,7 @@ jQuery(document).ready(function($){
 
     //update note order
     jQuery('.icon_note').hide();
-    jQuery('.order_note' ).keyup(function() {
+    jQuery('.order_note' ).on('keyup',function() {
         jQuery(this).closest('.row_order_note').find('.icon_note').show();
     });
     jQuery(document).on('click','.icon_note',function(){
@@ -383,7 +382,7 @@ jQuery(document).ready(function($){
 
     //update note order_cc
     jQuery('.icon_note_cc').hide();
-    jQuery( ".order_note_cc" ).keyup(function() {
+    jQuery( ".order_note_cc" ).on('keyup',function() {
         jQuery(this).closest('.note_cc').find('.icon_note_cc').show();
     });
     jQuery(document).on('click','.icon_note_cc',function(){
@@ -704,7 +703,7 @@ jQuery(document).ready(function($){
 
     //note config app
     jQuery('.icon_note_app').hide();
-    jQuery( "textarea[name='note_app']" ).keyup(function() {
+    jQuery( "textarea[name='note_app']" ).on('keyup',function() {
         jQuery(this).closest('td.note_app').find('.icon_note_app').show();
     });
     

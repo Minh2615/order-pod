@@ -31,11 +31,6 @@ class CustomOrder {
 		$client_id = isset( $_GET['client_id'] ) ? $_GET['client_id'] : '';
 
 		$short_by = isset( $_GET['shortby'] ) ? $_GET['shortby'] : 'ASC';
-		// if($short_by == 'DESC'){
-		// $short_by = 'DESC';
-		// }else{
-		// $short_by = 'ASC';
-		// }
 
 		if ( isset( $_GET['pageno'] ) ) {
 			$pageno = $_GET['pageno'];

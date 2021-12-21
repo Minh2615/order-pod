@@ -202,7 +202,7 @@ table .hidden-pc , table .hidden-note{
 	z-index: -1;
 }
 table .hidden-pc.block , table .hidden-note.block{
-	position: unset;
+	position: relative;
 	opacity: 1;
 	width: 100%;
 	transition: 0.2s;
