@@ -211,3 +211,9 @@ table .hidden-pc.block , table .hidden-note.block{
 table th.show-pc , table th.show-note{
 	cursor: pointer;
 }
+
+body.swal2-no-backdrop>.swal2-shown {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    width: 100%;
+	height: 100%;
+}

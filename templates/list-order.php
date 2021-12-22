@@ -93,14 +93,11 @@
 				<th class="hidden-pc" scope="col"><?php echo __( 'Warehouse Name (Warehouse Id)', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Ship to', 'order_sandbox' ); ?></th>
 				<!-- <th scope="col"><?php // echo __( 'Open Tickets', 'order_sandbox' ); ?></th> -->
-				<th scope="col" class="show-note">
-					<?php echo __( 'Note', 'order_sandbox' ); ?>
-					<span class="show-note" style="color:red"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
-				</th>
-				<th class="hidden-note" scope="col"><?php echo __( 'NoteCC', 'order_sandbox' ); ?></th>
-				<th class="hidden-note" scope="col"><?php echo __( 'Tracking Number', 'order_sandbox' ); ?></th>
-				<th class="hidden-note" scope="col"><?php echo __( 'Tracking Provider', 'order_sandbox' ); ?></th>
-				<th class="hidden-note" scope="col"><?php echo __( 'Country Code', 'order_sandbox' ); ?></th>
+				<th scope="col" class="show-note">Note</th>
+				<th scope="col"><?php echo __( 'NoteCC', 'order_sandbox' ); ?></th>
+				<th scope="col"><?php echo __( 'Tracking Number', 'order_sandbox' ); ?></th>
+				<th scope="col"><?php echo __( 'Tracking Provider', 'order_sandbox' ); ?></th>
+				<th scope="col"><?php echo __( 'Country Code', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Actions', 'order_sandbox' ); ?></th>
 			</tr>
 		</thead>
@@ -190,19 +187,19 @@
 						<?php echo $value->custom_note; ?>
 					</textarea>
 				</td>
-				<td class="row_order_note note_cc hidden-note">
+				<td class="row_order_note note_cc">
 					<span class="icon_note_cc"><i class="fa fa-pencil-square" aria-hidden="true"></i></span>
 					<textarea class="order_note_cc" name="order_note_cc" cols="20">
 						<?php echo $value->custom_note_cc; ?>
 					</textarea>
 				</td>
-				<td class="hidden-note">        
+				<td >        
 					<input id="track_id" type="text" class="form-control" placeholder="Tracking id " value="<?php echo $value->tracking_number ? $value->tracking_number : ''; ?>">
 				</td>
-				<td class="hidden-note">        
+				<td>        
 					<input id="track_provider" type="text" class="form-control" placeholder="Provider " value="<?php echo $value->tracking_provider ? $value->tracking_provider : ''; ?>">
 				</td>
-				<td class="hidden-note">        
+				<td>        
 					<input id="country_code" type="text" class="form-control" placeholder="Code" value="<?php echo $value->country_code ? $value->country_code : ''; ?>">
 				</td>
 				<td>

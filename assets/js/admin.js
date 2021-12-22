@@ -111,25 +111,16 @@ jQuery(document).ready(function($){
                 var data = result.data;
                 if(Array.isArray(data.data) && data.data != ''){
                     swal({title: "Success", type: 
-                        "success"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "success",backdrop:false});
                 }else{
                     swal({title: result.data.message , type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }
                 
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error",backdrop:false });
                 console.log(xhr.status);
             },
         }).done(function() {
@@ -238,25 +229,16 @@ jQuery(document).ready(function($){
                 var message = result.data.message;
                 if(typeof data === 'object' && data.success == true){
                         swal({title: "Success", type: 
-                            "success"}).then(function(){ 
-                                location.reload();
-                        }
-                    );
+                            "success",backdrop:false});
                 }else{
                     swal({title:"Error: " + message  , type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }
                 
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error",backdrop:false});
                 console.log(xhr.status);
             },
         })
@@ -267,6 +249,7 @@ jQuery(document).ready(function($){
     jQuery(document).on('click','.btn.remove_app',function(){
         var client_id = jQuery(this).closest('tr.row-tk').find('span.client_id').html();
         var token = jQuery(this).closest('tr.row-tk').find('span.token_id').html();
+        var remove = jQuery(this).closest('tr.row-tk');
         jQuery.ajax({
             url : mo_localize_script.ajaxurl,
             type: "post",
@@ -275,27 +258,21 @@ jQuery(document).ready(function($){
                 client_id : client_id,
                 token : token,
             },
+            beforeSend: function() {
+                jQuery("#overlay").fadeIn(300);　
+            },
             success: function(result){ 
                 if(result.data === 1){
-                        swal({title: "Success", type: 
-                            "success"}).then(function(){ 
-                                location.reload();
-                        }
-                    );
+                    jQuery("#overlay").fadeOut(300);　
+                    remove.fadeOut();
                 }else{
                     swal({title:"Error", type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }               
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error",backdrop:false});
                 console.log(xhr.status);
             },
         })
@@ -303,6 +280,7 @@ jQuery(document).ready(function($){
 
     //view shipping detail
     jQuery('.view_shiping').click(function(e){
+        e.preventDefault();
         var shipping_name = jQuery(this).closest('.content-shiping').find('.shiping_name').html();
         var shipping_phone = jQuery(this).closest('.content-shiping').find('.shipping_phone').html();
         var shipping_country = jQuery(this).closest('.content-shiping').find('.shipping_country').html();
@@ -312,6 +290,7 @@ jQuery(document).ready(function($){
         var shipping_state = jQuery(this).closest('.content-shiping').find('.shipping_state').html();
         var shipping_city = jQuery(this).closest('.content-shiping').find('.shipping_city').html();
         swal({
+            backdrop:false,
             title: 'Shipping Details',
             html:
             ' <table class="table table-bordered table-striped"><tbody>' + 
@@ -334,7 +313,7 @@ jQuery(document).ready(function($){
             '</div>',
             showCloseButton: true,
             focusConfirm: false,
-          })
+          });          
     });
 
     //update note order
@@ -345,8 +324,7 @@ jQuery(document).ready(function($){
     jQuery(document).on('click','.icon_note',function(){
         var note_order = jQuery(this).closest('.row_order_note').find('.order_note').val();
         var order_id = jQuery(this).closest('.row-tk').find('td.order_id').html();
-        console.log(note_order);
-        console.log(order_id);
+
         jQuery.ajax({
             url : mo_localize_script.ajaxurl,
             type: "post",
@@ -358,22 +336,17 @@ jQuery(document).ready(function($){
             success: function(result){ 
                 if(result.data === 1){
                     swal({title: "Success",
-                            type: "success"
+                            type: "success",
+                            backdrop:false
                     });
                 }else{
                     swal({title:"Error", type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }               
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error", backdrop:false});
                 console.log(xhr.status);
             },
         })
@@ -399,21 +372,15 @@ jQuery(document).ready(function($){
             success: function(result){ 
                 if(result.data === 1){
                         swal({title: "Success", type: 
-                            "success"});
+                            "success",backdrop:false});
                 }else{
                     swal({title:"Error", type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }               
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error",backdrop:false});
                 console.log(xhr.status);
             },
         })
@@ -509,6 +476,7 @@ jQuery(document).ready(function($){
             showCloseButton: true,
             width:1200,
             focusConfirm: false,
+            backdrop:false
           })
     });
 
@@ -662,12 +630,12 @@ jQuery(document).ready(function($){
                     $("#overlay").fadeOut(300);
                     save_messages(name_file,client_id , name_store);
                     swal({title:"Success", type: 
-                        "success"});
+                        "success",backdrop:false});
                 }    
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"});
+                    "error",backdrop:false});
                 
                 console.log(xhr.status);
             },
@@ -691,9 +659,7 @@ jQuery(document).ready(function($){
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload(true);
-                    });
+                    "error",backdrop:false});
                 
                 console.log(xhr.status);
             },
@@ -721,21 +687,15 @@ jQuery(document).ready(function($){
             success: function(result){ 
                 if(result.data === 1){
                         swal({title: "Success", type: 
-                            "success"});
+                            "success",backdrop:false});
                 }else{
                     swal({title:"Error", type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }               
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error",backdrop:false});
                 console.log(xhr.status);
             },
         }).done(function() {
@@ -756,6 +716,7 @@ jQuery(document).ready(function($){
         var currency_code = jQuery(this).closest('tr.row-tk').find('td.order_currency_code').html();
         var token = jQuery(this).closest('tr.row-tk').find('td.access_token').html();
         swal({
+            backdrop:false,
             title: 'Create Campaign',
             html:
                 '<div class="container mt-5 custom_create">' + 
@@ -836,7 +797,7 @@ jQuery(document).ready(function($){
                                
                             }else{
                                 swal({title: "Create Success", type: 
-                                "success"});
+                                "success", backdrop:false});
                             }    
                         })
                         .fail(function (erordata) {
@@ -863,25 +824,19 @@ jQuery(document).ready(function($){
                 token : token,
             },
             success: function(result){ 
-                console.log(result);
+
                 var remove_mes = result.data.message;
                 if(remove_mes === ""){
                         swal({title: "Success", type: 
-                            "success"});
+                            "success", backdrop:false});
                 }else{
                     swal({title: remove_mes , type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error", backdrop:false});
                 }               
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error", backdrop:false});
                 console.log(xhr.status);
             },
         }).done(function() {
@@ -925,6 +880,7 @@ jQuery(document).ready(function($){
         
 
         swal({
+            backdrop:false,
             title: 'Update Campaign',
             html:
                 '<div class="container mt-5 custom_create">' + 
@@ -1029,10 +985,7 @@ jQuery(document).ready(function($){
                                 )
                             }else{
                                 swal({title: "Success" , type: 
-                                    "success"}).then(function(){ 
-                                        location.reload(true);
-                                    }
-                                );
+                                    "success", backdrop:false});
                             }    
                         })
                         .fail(function (erordata) {
@@ -1094,24 +1047,15 @@ jQuery(document).ready(function($){
             success: function(result){ 
                 if(result.status === "success"){
                         swal({title: "Success", type: 
-                            "success"}).then(function(){ 
-                                location.reload(true);
-                            }
-                        );
+                            "success", backdrop:false});
                 }else{
                     swal({title: remove_mes , type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error", backdrop:false});
                 }               
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error", backdrop:false});
                 console.log(xhr.status);
             },
         });
@@ -1137,18 +1081,12 @@ jQuery(document).ready(function($){
                     create_design( orderID, titleProduct, imgProduct, designName );
                 }else{
                     swal({title: result.data.message , type: 
-                        "error"}).then(function(){ 
-                            location.reload();
-                        }
-                    );
+                        "error",backdrop:false});
                 }      
             },
             error: function(xhr){
                 swal({title: "Error", type: 
-                    "error"}).then(function(){ 
-                        location.reload();
-                    }
-                );
+                    "error",backdrop:false});
                 console.log(xhr.status);
             },
         }).done(function() {
