@@ -207,7 +207,8 @@ jQuery(document).ready(function($){
     
     // update tracking number 
 
-    jQuery(document).on('click','button.submit_tracking',function(){
+    jQuery(document).on('click','button.submit_tracking',function(e){
+        
         var track_id = jQuery(this).closest('tr.row-tk').find('#track_id').val();
         var order_id = jQuery(this).closest('tr.row-tk').find('td.order_id').html();
         var track_provider = jQuery(this).closest('tr.row-tk').find('#track_provider').val();
@@ -223,11 +224,15 @@ jQuery(document).ready(function($){
                 track_provider: track_provider,
                 country_code: country_code,
             },
+            beforeSend: function() {
+                jQuery("#overlay").fadeIn(300);　
+            },
             success: function(result){
                 console.log(result);
-                var data = result.data.data;
+                jQuery("#overlay").fadeOut(300);　
                 var message = result.data.message;
-                if(typeof data === 'object' && data.success == true){
+            
+                if( message == '' ){
                         swal({title: "Success", type: 
                             "success",backdrop:false});
                 }else{

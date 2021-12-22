@@ -295,7 +295,7 @@ class ManagerOrderAjax {
 		foreach ( $arr_order as $value ) {
 			$list_order[] = $value->order_id;
 		}
-		
+
 		foreach ( $data as $value ) {
 			if ( ! in_array( $value->id, $list_order ) ) {
 				$wpdb->replace(
@@ -339,9 +339,9 @@ class ManagerOrderAjax {
 				);
 			} else {
 				// $wpdb->update(
-				// 	$wpdb->prefix . 'mpo_order',
-				// 	array( 'access_token' => $token ),
-				// 	array( 'order_id' => $value->id )
+				// $wpdb->prefix . 'mpo_order',
+				// array( 'access_token' => $token ),
+				// array( 'order_id' => $value->id )
 				// );
 			}
 		};
@@ -366,11 +366,11 @@ class ManagerOrderAjax {
 
 		$token = $wpdb->get_var( "SELECT access_token FROM {$wpdb->prefix}mpo_order WHERE order_id = '{$order_id}'" );
 
-		$point    = 'https://merchant.wish.com/api/v3/orders/{id}/tracking';
-		$response = wp_remote_post(
+		$point    = 'https://merchant.wish.com/api/v3/orders/' . $order_id . '/tracking';
+		$response = wp_remote_request(
 			$point,
 			array(
-				'method'      => 'POST',
+				'method'      => 'PUT',
 				'headers'     => array(
 					'authorization' => 'Bearer ' . $token,
 					'Content-Type'  => 'application/json',
