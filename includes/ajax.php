@@ -239,7 +239,7 @@ class ManagerOrderAjax {
 	public function request_list_order_mpo( $token, $client_id ) {
 
 		$max_time = date( 'Y-m-d\TH:i:s\Z', time() );
-		$min_time = date( 'Y-m-d\TH:i:s\Z', strtotime( '-3 days', time() ) );
+		$min_time = date( 'Y-m-d\TH:i:s\Z', strtotime( '-7 days', time() ) );
 
 		$request = array(
 			'released_at_min' => $min_time,
@@ -293,9 +293,9 @@ class ManagerOrderAjax {
 		$arr_order = $wpdb->get_results( "SELECT DISTINCT order_id FROM {$wpdb->prefix}mpo_order" );
 
 		foreach ( $arr_order as $value ) {
-			$list_order[] = $value->id;
+			$list_order[] = $value->order_id;
 		}
-
+		
 		foreach ( $data as $value ) {
 			if ( ! in_array( $value->id, $list_order ) ) {
 				$wpdb->replace(
@@ -338,11 +338,11 @@ class ManagerOrderAjax {
 					)
 				);
 			} else {
-				$wpdb->update(
-					$wpdb->prefix . 'mpo_order',
-					array( 'access_token' => $token ),
-					array( 'order_id' => $value->id )
-				);
+				// $wpdb->update(
+				// 	$wpdb->prefix . 'mpo_order',
+				// 	array( 'access_token' => $token ),
+				// 	array( 'order_id' => $value->id )
+				// );
 			}
 		};
 		if ( $respons->paging != '' ) {

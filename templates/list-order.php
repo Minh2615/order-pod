@@ -120,6 +120,7 @@
 			};
 			if ( strtotime( $value->hours_to_fulfill ) < time() ) {
 				$time_fill = '0 hours';
+				$class_time_fill = 'alert-danger';
 			}
 
 			?>
