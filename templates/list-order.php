@@ -71,7 +71,6 @@
 			<tr>
 				<th scope="col"><?php echo __( 'STT', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Desgin name', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Push Desgin', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Campaign', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'App Name', 'order_sandbox' ); ?></th>
 				<th scope="col"><?php echo __( 'Date', 'order_sandbox' ); ?></th>
@@ -123,7 +122,7 @@
 				$class_time_fill = 'alert-danger';
 			};
 			if ( strtotime( $value->hours_to_fulfill ) < time() ) {
-				$time_fill = '0 hours';
+				$time_fill       = '0 hours';
 				$class_time_fill = 'alert-danger';
 			}
 
@@ -134,9 +133,9 @@
 				<td class="row_design_name">
 					<select name="design_name" class="design_name" style="width:200px">
 						<option value="<?php echo $value->design_name ?? ''; ?>" selected="selected"><?php echo $value->design_name ?? ''; ?></option>
-					</select>                   
+					</select>
+					<button type="button" class="btn btn-info push_design" style="margin-top:10px">Push</button>               
 				</td>
-				<td><button type="button" class="btn btn-info push_design">Push</button></td>
 				<td scope="row">
 					<?php if ( empty( $value->camp_id ) ) { ?>
 						<button type="button" class="btn btn-info create_camp"><?php echo __( 'Create ', 'order_sandbox' ); ?></button>
@@ -166,7 +165,7 @@
 				<td class="product_img"><img src="<?php echo $value->product_image_url; ?>" alt="" width="60" height="60"></td>
 				<td class="hidden-pc">size: <span class="product_size"><?php echo $value->size; ?></span>, color: <span class="product_color"><?php echo $value->color; ?></span> </td>
 				<td class="order_currency_code hidden-pc"><?php echo $value->currency_code; ?></td>
-				<td class="hidden-pc"><?php echo $value->price . $symbols; ?></td>
+				<td class="hidden-pc" class="product_price"><?php echo $value->price . $symbols; ?></td>
 				<td class="hidden-pc"><?php echo $value->cost . $symbols; ?></td>
 				<td class="hidden-pc"><?php echo $value->shipping . $symbols; ?></td>
 				<td class="hidden-pc"><?php echo $value->shipping_cost . $symbols; ?></td>
@@ -209,9 +208,9 @@
 				</td>
 				<td>
 					<div class="d-flex justify-content-between">
-						<button type="button" class="btn btn-info mr-2 submit_tracking" data-toggle="tooltip" data-placement="top" title="<?php echo __( 'Update Tracking Number', 'order_sandbox' ); ?>"><i class="fa fa-map-o" aria-hidden="true"></i></button>
-						<button type="button" class="btn btn-info mr-2"><i class="fa fa-home" aria-hidden="true"></i></button>
-						<button type="button"  class="btn btn-info export_csv" data-toggle="tooltip" data-placement="top" title="<?php echo __( 'Export CSV', 'order_sandbox' ); ?>"><i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-info mr-2 submit_tracking theproblem" data-toggle="tooltip" data-placement="top" title="<?php echo __( 'Update Tracking Number', 'order_sandbox' ); ?>"><i class="fa fa-map-o" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-info mr-2 push_merchant theproblem" data-toggle="tooltip" data-placement="top" title="<?php echo 'Create order merchant'; ?>"><i class="fa fa-home" aria-hidden="true"></i></button>
+						<button type="button"  class="btn btn-info export_csv theproblem" data-toggle="tooltip" data-placement="top" title="<?php echo __( 'Export CSV', 'order_sandbox' ); ?>"><i class="fa fa-share-square-o" aria-hidden="true"></i></button>
 					</div>
 				</td>
 			</tr>

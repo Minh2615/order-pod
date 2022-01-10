@@ -56,10 +56,10 @@ class ManagerOrderAjax {
 		add_action( 'wp_ajax_nopriv_update_campaign_mpo', array( $this, 'update_campaign_mpo' ) );
 
 				add_action( 'update_new_order_mpo', array( $this, 'auto_update_new_order_mpo' ) );
-		wp_schedule_single_event( time() + 900, 'update_new_order_mpo' );
+		wp_schedule_single_event( time() + 3600, 'update_new_order_mpo' );
 
 				add_action( 'update_status_order_mpo', array( $this, 'auto_update_status_order_mpo' ) );
-		wp_schedule_single_event( time() + 1800, 'update_status_order_mpo' );
+		wp_schedule_single_event( time() + 3600, 'update_status_order_mpo' );
 
 				add_action( 'get_campaign_mpo', array( $this, 'auto_get_campaign_mpo' ) );
 		wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
@@ -84,7 +84,86 @@ class ManagerOrderAjax {
 		// save design name
 		add_action( 'wp_ajax_save_desgin_name', array( $this, 'save_desgin_name' ) );
 		add_action( 'wp_ajax_nopriv_save_desgin_name', array( $this, 'save_desgin_name' ) );
+
+		// create order merchant
+		add_action( 'wp_ajax_create_order_merchant', array( $this, 'create_order_merchant' ) );
+		add_action( 'wp_ajax_nopriv_create_order_merchant', array( $this, 'create_order_merchant' ) );
 	}
+
+	/**
+	 * create order merchant
+	 */
+	public function create_order_merchant() {
+		$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MThjNzQwMzQ5ODM3YjExOTRhZWMyNWIiLCJlbWFpbCI6Im1pbmhwaGFtMjYxNUBnbWFpbC5jb20iLCJpYXQiOjE2NDAzMTc5MzgsImV4cCI6MTY0MjkwOTkzOH0.nvFjZe5NgLD1zLYhpciP5v4CXY-kgFh2yA0VRLDyW6c';
+		$args  = array(
+			'order_id'      => isset( $_POST['order_id'] ) ? $_POST['order_id'] : '',
+			'shipping_info' => array(
+				'full_name' => isset( $_POST['shiping_name'] ) ? $_POST['shiping_name'] : '',
+				'address_1' => isset( $_POST['shipping_address_1'] ) ? $_POST['shipping_address_1'] : '',
+				'address_2' => isset( $_POST['shipping_address_2'] ) ? $_POST['shipping_address_2'] : '',
+				'city'      => isset( $_POST['shipping_city'] ) ? $_POST['shipping_city'] : '',
+				'state'     => isset( $_POST['shipping_state'] ) ? $_POST['shipping_state'] : '',
+				'postcode'  => isset( $_POST['shipping_zipcode'] ) ? $_POST['shipping_zipcode'] : '',
+				'country'   => isset( $_POST['shipping_country'] ) ? $_POST['shipping_country'] : '',
+				'phone'     => isset( $_POST['shipping_phone'] ) ? $_POST['shipping_phone'] : '',
+			),
+			'tax'           => isset( $_POST['tax'] ) ? $_POST['tax'] : '',
+			'items'         => array(
+				array(
+					'name'       => isset( $_POST['product_name'] ) ? $_POST['product_name'] : '',
+					'product_id' => isset( $_POST['product_id'] ) ? $_POST['product_id'] : '',
+					'sku'        => isset( $_POST['product_sku'] ) ? $_POST['product_sku'] : '',
+					'quantity'   => isset( $_POST['product_qty'] ) ? $_POST['product_qty'] : '',
+					'price'      => isset( $_POST['product_price'] ) ? $_POST['product_price'] : '',
+					'image'      => isset( $_POST['product_image'] ) ? $_POST['product_image'] : '',
+					'attributes' => array(
+						array(
+							'name'   => 'Color',
+							'option' => isset( $_POST['product_color'] ) ? $_POST['product_color'] : '',
+						),
+						array(
+							'name'   => 'Size',
+							'option' => isset( $_POST['product_size'] ) ? $_POST['product_size'] : '',
+						),
+					),
+				),
+			),
+		);
+		$point = 'https://bo-iwgep5r.merchize.com/bo-api/order/external/orders/';
+
+		$response = wp_remote_post(
+			$point,
+			array(
+				'method'      => 'POST',
+				'headers'     => array(
+					'authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'        => json_encode( $args ),
+				'timeout'     => 70,
+				'sslverify'   => false,
+				'data_format' => 'body',
+			)
+		);
+
+		$parsed_response = json_decode( $response['body'] );
+
+		wp_send_json_success( $parsed_response );
+
+		die();
+	}
+
+	/**
+	 * insert order_id  merchant
+	 */
+
+	public function insert_order_id_merchant() {
+
+	}
+
+	/**
+	 * save_desgin_name
+	 */
 	public function save_desgin_name() {
 
 		global $wpdb;
@@ -238,15 +317,14 @@ class ManagerOrderAjax {
 
 	public function request_list_order_mpo( $token, $client_id ) {
 
-		$max_time = date( 'Y-m-d\TH:i:s\Z', time() );
-		$min_time = date( 'Y-m-d\TH:i:s\Z', strtotime( '-7 days', time() ) );
+		$max_time = gmdate( 'Y-m-d\TH:i:s\Z', time() );
+		$min_time = gmdate( 'Y-m-d\TH:i:s\Z', strtotime( '-30 days', time() ) );
 
 		$request = array(
 			'released_at_min' => $min_time,
 			'released_at_max' => $max_time,
 			'updated_at_min'  => $min_time,
 			'updated_at_max'  => $max_time,
-			'limit'           => 100,
 		);
 
 		$point = 'https://merchant.wish.com/api/v3/orders';
@@ -290,7 +368,7 @@ class ManagerOrderAjax {
 		$data       = $respons->data ?? array();
 		$list_order = array();
 
-		$arr_order = $wpdb->get_results( "SELECT DISTINCT order_id FROM {$wpdb->prefix}mpo_order" );
+		$arr_order = $wpdb->get_results( "SELECT DISTINCT order_id FROM {$wpdb->prefix}mpo_order WHERE order_time >= date_sub(now(), interval 30 day)" );
 
 		foreach ( $arr_order as $value ) {
 			$list_order[] = $value->order_id;
@@ -298,7 +376,7 @@ class ManagerOrderAjax {
 
 		foreach ( $data as $value ) {
 			if ( ! in_array( $value->id, $list_order ) ) {
-				$wpdb->replace(
+				$wpdb->insert(
 					$wpdb->prefix . 'mpo_order',
 					array(
 						'order_id'           => $value->id,
@@ -327,6 +405,7 @@ class ManagerOrderAjax {
 						'shipping_phone'     => $value->full_address->shipping_detail->phone_number->number,
 						'shipping_zipcode'   => $value->full_address->shipping_detail->zipcode,
 						'shipping_address_1' => $value->full_address->shipping_detail->street_address1,
+						'shipping_address_2' => $value->full_address->shipping_detail->street_address2,
 						'shipping_state'     => $value->full_address->shipping_detail->state,
 						'shipping_city'      => $value->full_address->shipping_detail->city,
 						'shipped_date'       => $value->fulfillment_requirements->expected_ship_time,
@@ -364,7 +443,12 @@ class ManagerOrderAjax {
 		$track_provider = isset( $_POST['track_provider'] ) ? $_POST['track_provider'] : '';
 		$country_code   = isset( $_POST['country_code'] ) ? $_POST['country_code'] : '';
 
-		$token = $wpdb->get_var( "SELECT access_token FROM {$wpdb->prefix}mpo_order WHERE order_id = '{$order_id}'" );
+		$token = $wpdb->get_var(
+			$wpdb->prepare(
+				" SELECT access_token FROM {$wpdb->prefix}mpo_order WHERE order_id = %s",
+				$order_id
+			)
+		);
 
 		$point    = 'https://merchant.wish.com/api/v3/orders/' . $order_id . '/tracking';
 		$response = wp_remote_request(
@@ -387,8 +471,9 @@ class ManagerOrderAjax {
 		if ( empty( $parsed_response->message ) ) {
 			$new_order    = $this->request_update_order_mpo( $order_id, $token );
 			$data_new     = $new_order->data;
-			$status_order = $data_new->data[0]->state;
-			$shipped_date = $data_new->data[0]->fulfillment_requirements->expected_delivery_time;
+			$status_order = $data_new->state;
+			$shipped_date = $data_new->fulfillment_requirements->expected_ship_time;
+
 			$wpdb->update(
 				$wpdb->prefix . 'mpo_order',
 				array(
@@ -416,17 +501,18 @@ class ManagerOrderAjax {
 
 		global $wpdb;
 
-		$list_order = $wpdb->get_results( "SELECT DISTINCT access_token , order_id FROM {$wpdb->prefix}mpo_order WHERE status_order IS NOT NULL OR status_order != ''" );
+		$list_order = $wpdb->get_results( "SELECT DISTINCT access_token , order_id , status_order FROM {$wpdb->prefix}mpo_order WHERE status_order IS NOT NULL OR status_order != '' AND tracking_number IS NOT NULL OR status_order != '' " );
 
 		foreach ( $list_order as $value ) {
-			$new_order    = $this->request_update_order_mpo( $value->order_id, $value->access_token );
-			$data_new     = $new_order->data;
-			$order_id     = $data_new->id;
-			$status_order = $data_new->data[0]->state;
-			$shipped_date = $data_new->data[0]->fulfillment_requirements->expected_delivery_time;
+			if ( $value->status_order != 'SHIPPED' ) {
+				$new_order    = $this->request_update_order_mpo( $value->order_id, $value->access_token );
+				$data_new     = $new_order->data;
+				$order_id     = $data_new->id;
+				$status_order = $data_new->state;
+				$shipped_date = $data_new->fulfillment_requirements->expected_ship_time;
 
-			$this->update_status_db_order_mpo( $status_order, $shipped_date, $order_id );
-
+				$this->update_status_db_order_mpo( $status_order, $shipped_date, $order_id );
+			}
 		}
 	}
 
@@ -445,7 +531,7 @@ class ManagerOrderAjax {
 
 	public function request_update_order_mpo( $order_id, $token ) {
 
-		$point    = 'https://merchant.wish.com/api/v3/orders/{id}';
+		$point    = 'https://merchant.wish.com/api/v3/orders/' . $order_id . '';
 		$request  = array(
 			'id' => $order_id,
 		);
@@ -607,7 +693,7 @@ class ManagerOrderAjax {
 		$client_id  = isset( $_POST['client_id'] ) ? $_POST['client_id'] : '';
 		$name_store = isset( $_POST['name_store'] ) ? $_POST['name_store'] : '';
 
-		date_default_timezone_set( 'Asia/Ho_Chi_Minh' );
+		// date_default_timezone_set( 'Asia/Ho_Chi_Minh' );
 		$now  = new DateTime();
 		$mess = 'Upload File: ' . $name_file . ' Success by: ' . $name_store . ' at : ' . $now->format( 'Y-m-d H:i:s' );
 
@@ -650,8 +736,8 @@ class ManagerOrderAjax {
 		$currency_code               = isset( $_POST['currency_code'] ) ? $_POST['currency_code'] : '';
 		$token                       = isset( $_POST['token'] ) ? $_POST['token'] : '';
 
-		$end_date_fm   = date( 'Y-m-d\TH:i:s\Z', strtotime( $end_date ) );
-		$start_date_fm = date( 'Y-m-d\TH:i:s\Z', strtotime( $start_date ) );
+		$end_date_fm   = gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $end_date ) );
+		$start_date_fm = gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $start_date ) );
 		$point         = 'https://merchant.wish.com/api/v3/product_boost/campaigns';
 
 		$response = wp_remote_post(
@@ -794,8 +880,8 @@ class ManagerOrderAjax {
 		$token                       = isset( $_POST['token'] ) ? $_POST['token'] : '';
 		$state_camp                  = isset( $_POST['state_camp'] ) ? $_POST['state_camp'] : '';
 
-		$end_date_fm   = date( 'Y-m-d\TH:i:s\Z', strtotime( $end_date ) );
-		$start_date_fm = date( 'Y-m-d\TH:i:s\Z', strtotime( $start_date ) );
+		$end_date_fm   = gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $end_date ) );
+		$start_date_fm = gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $start_date ) );
 		$point         = 'https://merchant.wish.com/api/v3/product_boost/campaigns/' . $camp_id;
 
 		$response = wp_remote_post(

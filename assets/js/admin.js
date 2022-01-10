@@ -1,6 +1,8 @@
 jQuery(document).ready(function($){
     //tooltip
-    $('[data-toggle="tooltip"]').tooltip();
+    // $('[data-toggle="tooltip"]').tooltip();
+    $("body").tooltip({ selector: '[data-toggle=tooltip]',placement: 'right' });
+
     // ajax send
     
     // get code 
@@ -1039,9 +1041,9 @@ jQuery(document).ready(function($){
         dataDesgin = e.params.data;
     })
     const create_design =  (orderID, titleProduct ,imgProduct, designName) => {
-        //console.log(mo_localize_script.design_rest_url + 'mpo-design/create-design')
+
         jQuery.ajax({
-            url : 'http://poddes.local/wp-json/mpo-design/create-design', // nhớ sửa
+            url : 'https://designer.byprintee.com/wp-json/mpo-design/create-design', // nhớ sửa
             type: "post",
             data:{
                 mpo_order_id: orderID,
@@ -1081,7 +1083,7 @@ jQuery(document).ready(function($){
                 user_name : designName,
             },
             success: function(result){ 
-                console.log(result);
+ 
                 if( result.data.status == 'success' ){
                     create_design( orderID, titleProduct, imgProduct, designName );
                 }else{
@@ -1099,17 +1101,109 @@ jQuery(document).ready(function($){
               $("#overlay").fadeOut(300);
             },500);
         });
-    })
+    });
 
     //click show info order
     jQuery(document).on('click','.show-pc',function(){
         jQuery("table .hidden-pc").toggleClass("block");
-    })   
+    });   
 
      //click show note order
     jQuery(document).on('click','.show-note',function(){
         jQuery("table .hidden-note").toggleClass("block");
-    })   
+    }); 
+
+    //switch 1C
+
+    jQuery(document).on('click','.push_merchant' ,function() {
+        var order_id = jQuery(this).closest('tr.row-tk').find('td.order_id').html();
+        var product_size = jQuery(this).closest('tr.row-tk').find('span.product_size').html();
+        var product_color = jQuery(this).closest('tr.row-tk').find('span.product_color').html();
+        var shiping_name = jQuery(this).closest('tr.row-tk').find('p.shiping_name').html();
+        var shipping_address_1 = jQuery(this).closest('tr.row-tk').find('p.shipping_address_1').html();
+        var shipping_address_2 = jQuery(this).closest('tr.row-tk').find('p.shipping_address_2').html();
+        var shipping_city = jQuery(this).closest('tr.row-tk').find('p.shipping_city').html();
+        var shipping_country = jQuery(this).closest('tr.row-tk').find('p.shipping_country').html();
+        var shipping_zipcode = jQuery(this).closest('tr.row-tk').find('p.shipping_zipcode').html();
+        var shipping_state = jQuery(this).closest('tr.row-tk').find('p.shipping_state').html();
+        var shipping_phone = jQuery(this).closest('tr.row-tk').find('p.shipping_phone').html();
+        var product_name = jQuery(this).closest('tr.row-tk').find('td.product_name').html();
+        var product_id = jQuery(this).closest('tr.row-tk').find('td.product_id_camp').html();
+        var product_sku = jQuery(this).closest('tr.row-tk').find('td.product_sku').html();
+        var product_qty = jQuery(this).closest('tr.row-tk').find('td.order_quantity').html();
+        var product_price = jQuery(this).closest('tr.row-tk').find('td.product_price').html();
+        var product_image = jQuery(this).closest('tr.row-tk').find('td.product_img img').attr('src');
+        swal({
+            backdrop:false,
+            title: 'Push Order Merchant',
+            html:
+                '<div class="container mt-5">' + 
+                '<div class="form_camp one">' + 
+                '<div class="input-group mb-3 col-lg-12">' +
+                '<div class="input-group-prepend w-left"><span class="input-group-text">Type</span></div>'+ 
+                '<input type="text" class="form-control w-right" placeholder="Type" name="size_product_swal" value="'+product_size+'"></div>'+
+                '<div class="input-group mb-3 col-lg-12">' +
+                '<div class="input-group-prepend w-left"><span class="input-group-text">Color</span></div>'+ 
+                '<input type="text" class="form-control w-right" placeholder="Color" name="color_product_swal" value="'+product_color+'"></div>'+
+                '<div class="input-group mb-3 col-lg-12">' +
+                '<div class="input-group-prepend w-left"><span class="input-group-text">IOSS</span></div>'+ 
+                '<input type="text" class="form-control w-right" placeholder="IOSS" name="ioss_product" value=""></div>'+
+                '</div>' +
+                '</div>',
+                width:500,
+                showLoaderOnConfirm: true,
+                confirmButtonText: 'Submit',
+                preConfirm: function () {
+                    product_color = jQuery('input[name="color_product_swal"]').val();
+                    product_size = jQuery('input[name="size_product_swal"]').val();
+                    var tax = jQuery('input[name="ioss_product"]').val();
+                    return new Promise(function (resolve) {
+                      jQuery.ajax({
+                        url : mo_localize_script.ajaxurl,
+                        type: "post",
+                        data: {
+                            action: 'create_order_merchant',
+                            order_id : order_id,
+                            shiping_name : shiping_name,
+                            shipping_address_1: shipping_address_1,
+                            shipping_address_2: shipping_address_2,
+                            shipping_city: shipping_city,
+                            shipping_country: shipping_country,
+                            shipping_zipcode: shipping_zipcode,
+                            shipping_state: shipping_state,
+                            shipping_phone: shipping_phone,
+                            tax : tax,
+                            product_name: product_name,
+                            product_id : product_id,
+                            product_sku : product_sku,
+                            product_qty : product_qty,
+                            product_price : product_price,
+                            product_image : product_image,
+                            product_color: product_color,
+                            product_size: product_size
+                            
+                        },
+                      })
+                        .done(function (rs) {
+                            if(rs.data.message){
+                                swal.hideLoading();
+                                swal.showValidationError(
+                                    'Request failed:'+rs.data.message
+                                )
+                            }else{
+                                swal({title: "Success" , type: 
+                                    "success", backdrop:false});
+                            }    
+                        })
+                        .fail(function (erordata) {
+                          console.log(erordata);
+                          swal('cancelled!', 'The action have been cancelled by the user :-)', 'error');
+                        })
+                
+                    })
+                  },
+          })
+    })
     
     
 });

@@ -131,7 +131,7 @@
 				<td class="product_img"><img src="<?php echo $value->product_image_url; ?>" alt="" width="60" height="60"></td>
 				<td>size: <span class="product_size"><?php echo $value->size; ?></span>, color: <span class="product_color"><?php echo $value->color; ?></span> </td>
 				<td class="order_currency_code"><?php echo $value->currency_code; ?></td>
-				<td><?php echo $value->price . $symbols; ?></td>
+				<td class="product_price"><?php echo $value->price . $symbols; ?></td>
 				<td><?php echo $value->cost . $symbols; ?></td>
 				<td><?php echo $value->shipping . $symbols; ?></td>
 				<td><?php echo $value->shipping_cost . $symbols; ?></td>

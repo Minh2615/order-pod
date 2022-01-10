@@ -169,7 +169,7 @@ class ManagerOrder {
 				'page_history'    => get_site_url() . '/wp-admin/admin.php?page=mpo_order_history',
 				'page_camp'       => get_site_url() . '/wp-admin/admin.php?page=mpo_list_campaign',
 				'rest_url'        => get_rest_url(),
-				'design_rest_url' => 'http://poddes.local/wp-json/', // nho sua
+				'design_rest_url' => 'https://designer.byprintee.com/wp-json/', // nho sua
 			)
 		);
 	}
