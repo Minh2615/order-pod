@@ -112,7 +112,7 @@
 		foreach ( $data as $value ) {
 
 			$symbols        = array_key_exists( $value->currency_code, $currency_symbols ) ? $currency_symbols[ $value->currency_code ] : '';
-			$query_app_name = $wpdb->get_results( "SELECT name_app FROM {$wpdb->prefix}mpo_config WHERE access_token = '{$value->access_token}'" );
+			$query_app_name = $wpdb->get_results( "SELECT name_app FROM {$wpdb->prefix}mpo_config WHERE client_id = '{$value->client_id}'" );
 			$time_fill      = human_time_diff( time(), strtotime( $value->hours_to_fulfill ) );
 
 			$class_time_fill = 'alert-warning';
@@ -213,6 +213,7 @@
 						<button type="button"  class="btn btn-info export_csv theproblem" data-toggle="tooltip" data-placement="top" title="<?php echo __( 'Export CSV', 'order_sandbox' ); ?>"><i class="fa fa-share-square-o" aria-hidden="true"></i></button>
 					</div>
 				</td>
+				<input type="hidden" value="<?php echo get_option( 'token_mer' ) ? get_option( 'token_mer' ) : ''; ?>" name="token_mer">
 			</tr>
 		<?php $i++;} ?>
 		</tbody>

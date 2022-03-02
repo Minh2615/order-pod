@@ -1133,6 +1133,11 @@ jQuery(document).ready(function($){
         var product_qty = jQuery(this).closest('tr.row-tk').find('td.order_quantity').html();
         var product_price = jQuery(this).closest('tr.row-tk').find('td.product_price').html();
         var product_image = jQuery(this).closest('tr.row-tk').find('td.product_img img').attr('src');
+        var token_mer = jQuery(this).closest('tr.row-tk').find('input[name="token_mer"]').val();
+
+        if(typeof token_mer == 'undefined'){
+            token_mer = '';
+        };
         swal({
             backdrop:false,
             title: 'Push Order Merchant',
@@ -1148,6 +1153,9 @@ jQuery(document).ready(function($){
                 '<div class="input-group mb-3 col-lg-12">' +
                 '<div class="input-group-prepend w-left"><span class="input-group-text">IOSS</span></div>'+ 
                 '<input type="text" class="form-control w-right" placeholder="IOSS" name="ioss_product" value=""></div>'+
+                '<div class="input-group mb-3 col-lg-12">' +
+                '<div class="input-group-prepend w-left"><span class="input-group-text">Token</span></div>'+ 
+                '<input type="text" class="form-control w-right" placeholder="Token" name="access_token_mer" value="'+token_mer+'"></div>'+
                 '</div>' +
                 '</div>',
                 width:500,
@@ -1156,6 +1164,7 @@ jQuery(document).ready(function($){
                 preConfirm: function () {
                     product_color = jQuery('input[name="color_product_swal"]').val();
                     product_size = jQuery('input[name="size_product_swal"]').val();
+                    access_token_mer = jQuery('input[name="access_token_mer"]').val();
                     var tax = jQuery('input[name="ioss_product"]').val();
                     return new Promise(function (resolve) {
                       jQuery.ajax({
@@ -1163,6 +1172,7 @@ jQuery(document).ready(function($){
                         type: "post",
                         data: {
                             action: 'create_order_merchant',
+                            token_mer : access_token_mer,
                             order_id : order_id,
                             shiping_name : shiping_name,
                             shipping_address_1: shipping_address_1,

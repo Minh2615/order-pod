@@ -108,7 +108,7 @@
 			$symbols          = array_key_exists( $value->currency_code, $currency_symbols ) ? $currency_symbols[ $value->currency_code ] : '';
 			$list_time_down[] = array( $value->hours_to_fulfill, $value->order_time );
 
-			$query_app_name = $wpdb->get_results( "SELECT name_app FROM {$wpdb->prefix}mpo_config WHERE access_token = '{$value->access_token}'" );
+			$query_app_name = $wpdb->get_results( "SELECT name_app FROM {$wpdb->prefix}mpo_config WHERE client_id = '{$value->client_id}'" );
 			?>
 			
 			<tr class="row-tk">

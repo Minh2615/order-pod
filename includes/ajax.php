@@ -94,7 +94,12 @@ class ManagerOrderAjax {
 	 * create order merchant
 	 */
 	public function create_order_merchant() {
-		$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MThjNzQwMzQ5ODM3YjExOTRhZWMyNWIiLCJlbWFpbCI6Im1pbmhwaGFtMjYxNUBnbWFpbC5jb20iLCJpYXQiOjE2NDAzMTc5MzgsImV4cCI6MTY0MjkwOTkzOH0.nvFjZe5NgLD1zLYhpciP5v4CXY-kgFh2yA0VRLDyW6c';
+		$token = isset( $_POST['token_mer'] ) ? $_POST['token_mer'] : '';
+		
+		if ( $token ) {
+			update_option( 'token_mer', $token );
+		}
+
 		$args  = array(
 			'order_id'      => isset( $_POST['order_id'] ) ? $_POST['order_id'] : '',
 			'shipping_info' => array(
@@ -211,10 +216,11 @@ class ManagerOrderAjax {
 
 		$data = $this->request_manager_order( $api_endpoint, $request, 'GET' );
 
-			$expiry_time = $data->data->expiry_time;
+		$expiry_time = $data->data->expiry_time;
 
-			$token = $data->data->access_token;
+		$token = $data->data->access_token;
 
+		if ( $token ) {
 			$wpdb->update(
 				$wpdb->prefix . 'mpo_config',
 				array(
@@ -224,8 +230,17 @@ class ManagerOrderAjax {
 				),
 				array( 'client_id' => $client_id )
 			);
-
+			$wpdb->update(
+				$wpdb->prefix . 'mpo_order',
+				array(
+					'access_token' => $token,
+				),
+				array( 'client_id' => $client_id )
+			);
 			wp_schedule_single_event( time() + 30 * 86400, 'schedule_refesh_token_new', array( $refesh_token, $client_id, $client_secret ) );
+		} else {
+			$this->refesh_token_new( $refesh_token, $client_id, $client_secret );
+		}
 
 	}
 
@@ -325,6 +340,7 @@ class ManagerOrderAjax {
 			'released_at_max' => $max_time,
 			'updated_at_min'  => $min_time,
 			'updated_at_max'  => $max_time,
+			'limit'           => 200,
 		);
 
 		$point = 'https://merchant.wish.com/api/v3/orders';
@@ -417,11 +433,11 @@ class ManagerOrderAjax {
 					)
 				);
 			} else {
-				// $wpdb->update(
-				// $wpdb->prefix . 'mpo_order',
-				// array( 'access_token' => $token ),
-				// array( 'order_id' => $value->id )
-				// );
+				$wpdb->update(
+					$wpdb->prefix . 'mpo_order',
+					array( 'access_token' => $token ),
+					array( 'order_id' => $value->id )
+				);
 			}
 		};
 		if ( $respons->paging != '' ) {
