@@ -77,8 +77,10 @@
 		foreach ( $rs as $value ) {
 			?>
 			<tr class="row-tk">
-				<td scope="row"><?php echo $i; ?></td>
-				<td><?php echo $value->name_app; ?></td>
+				<td scope="row" style="display:flex;justify-content:center;flex-wrap:wrap;"><p style="width:100%;text-align:center"><?php echo $i; ?></p><button type="button" class="btn btn-info remove_app"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+				<td>
+					<p><?php echo $value->name_app; ?></p>
+				</td>
 				<td class="app_info">
 					<p>CLient ID: <span class="client_id"><?php echo $value->client_id; ?></span></p>
 					<p>CLient Secret: <span><?php echo $value->client_secret; ?></span></p>
@@ -117,8 +119,8 @@
 					<button type="button" class="btn btn-info get_camp">GET</button>
 					<button type="button" class="btn btn-info view_camp">VIEW</button>
 				</td>
-				<td>
-					<button type="button" class="btn btn-info remove_app"><i class="fa fa-trash" aria-hidden="true"></i></button>
+				<td class="actions">
+					<button type="button" class="btn btn-info remove_product"><i class="fa fa-trash" aria-hidden="true"></i></button>
 				</td>
 			</tr>
 		<?php $i++;} ?>

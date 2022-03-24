@@ -1,41 +1,4 @@
-POST https://bo-iwgep5r.merchize.com/bo-api/order/external/orders/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MThjNzQwMzQ5ODM3YjExOTRhZWMyNWIiLCJlbWFpbCI6Im1pbmhwaGFtMjYxNUBnbWFpbC5jb20iLCJpYXQiOjE2NDYyMDk4MzksImV4cCI6MTY0ODgwMTgzOX0.AzaaYKOxM53b92KNiQK6voLXW4eZ4mK-3v8oRlMjLHE
-Content-type: application/json
-
-{
-    "order_id" : "2312313",
-    "shipping_info": {
-        "full_name" :  "John",
-		"address_1" : "Hà nội",
-		"address_2" : "",
-		"city"      : "Thanh xuân",
-		"state"     : "VN",
-		"postcode"  : "10000",
-		"country"   : "VN",
-		"phone"     : "037536312"
-    },
-    "items" : [
-        {
-            "name"       : "Test product 123",
-			"product_id" : "60cc73d0e0e51f75613e3132",
-			"sku"       : "723082895273203-ML",
-			"quantity"  : "1",
-			"price"   : "20",
-            "image"   : "https://canary.contestimg.wish.com/api/webimage/60cc73d0e0e51f75613e330a-original.jpg",
-            "attributes" : [
-                {
-                    "name"   : "Color",
-					"option" : "Black"
-                },
-                {  
-                    "name"  : "Color",
-					"option" :  "Black"
-                }
-            ]
-        }
-    ]
-}
+DELETE  https://merchant.wish.com/api/v3/products/61665433def137b995a3b1a9
+Authorization: Bearer 76bdda41b40f45bbb5fdbe72a48628e5
 
 ###
-GET http://poddes.local/wp-json/wp/v2/posts?v=werewrewr
-Content-Type: application/json

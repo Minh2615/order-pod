@@ -108,12 +108,13 @@
 		<?php
 		$currency_symbols = mpo_currency_symbols();
 		$i                = 1;
+	
 		global $wpdb;
 		foreach ( $data as $value ) {
 
 			$symbols        = array_key_exists( $value->currency_code, $currency_symbols ) ? $currency_symbols[ $value->currency_code ] : '';
 			$query_app_name = $wpdb->get_results( "SELECT name_app FROM {$wpdb->prefix}mpo_config WHERE client_id = '{$value->client_id}'" );
-			$time_fill      = human_time_diff( time(), strtotime( $value->hours_to_fulfill ) );
+			$time_fill      = human_time_diff( time(), strtotime( $value->shipped_date ) );
 
 			$class_time_fill = 'alert-warning';
 			$array_time_fill = explode( ' ', $time_fill );
@@ -121,7 +122,7 @@
 			if ( $array_time_fill[0] <= 24 && $array_time_fill[1] == 'hours' ) {
 				$class_time_fill = 'alert-danger';
 			};
-			if ( strtotime( $value->hours_to_fulfill ) < time() ) {
+			if ( strtotime( $value->shipped_date ) < time() ) {
 				$time_fill       = '0 hours';
 				$class_time_fill = 'alert-danger';
 			}

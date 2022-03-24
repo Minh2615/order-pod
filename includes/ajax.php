@@ -55,15 +55,16 @@ class ManagerOrderAjax {
 		add_action( 'wp_ajax_update_campaign_mpo', array( $this, 'update_campaign_mpo' ) );
 		add_action( 'wp_ajax_nopriv_update_campaign_mpo', array( $this, 'update_campaign_mpo' ) );
 
-				add_action( 'update_new_order_mpo', array( $this, 'auto_update_new_order_mpo' ) );
+		add_action( 'update_new_order_mpo', array( $this, 'auto_update_new_order_mpo' ) );
 		wp_schedule_single_event( time() + 3600, 'update_new_order_mpo' );
 
-				add_action( 'update_status_order_mpo', array( $this, 'auto_update_status_order_mpo' ) );
+		add_action( 'update_status_order_mpo', array( $this, 'auto_update_status_order_mpo' ) );
 		wp_schedule_single_event( time() + 3600, 'update_status_order_mpo' );
 
-				add_action( 'get_campaign_mpo', array( $this, 'auto_get_campaign_mpo' ) );
+		add_action( 'get_campaign_mpo', array( $this, 'auto_get_campaign_mpo' ) );
 		wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
 
+		add_action( 'schedule_remove_product', array( $this, 'auto_remove_product_wish' ), 10, 1 );
 		// upload token after 30 days
 
 		add_action( 'schedule_refesh_token_new', array( $this, 'refesh_token_new' ), 10, 3 );
@@ -81,6 +82,7 @@ class ManagerOrderAjax {
 
 		add_action( 'wp_ajax_push_order_action', array( $this, 'push_order_action_callback' ) );
 		add_action( 'wp_ajax_nopriv_push_order_action', array( $this, 'push_order_action_callback' ) );
+
 		// save design name
 		add_action( 'wp_ajax_save_desgin_name', array( $this, 'save_desgin_name' ) );
 		add_action( 'wp_ajax_nopriv_save_desgin_name', array( $this, 'save_desgin_name' ) );
@@ -88,6 +90,59 @@ class ManagerOrderAjax {
 		// create order merchant
 		add_action( 'wp_ajax_create_order_merchant', array( $this, 'create_order_merchant' ) );
 		add_action( 'wp_ajax_nopriv_create_order_merchant', array( $this, 'create_order_merchant' ) );
+
+		add_action( 'wp_ajax_remove_product', array( $this, 'remove_product_ajax' ) );
+		add_action( 'wp_ajax_nopriv_remove_product', array( $this, 'remove_product_ajax' ) );
+	}
+
+	public function remove_product_ajax( $token ) {
+		if ( empty( $token ) ) {
+			$token = isset( $_POST['token'] ) ? $_POST['token'] : '';
+		}
+		$api_endpoint = 'https://merchant.wish.com/api/v3/products/?limit=10';
+		$response     = wp_remote_request(
+			$api_endpoint,
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					// 'Authorization' => 'Bearer 76bdda41b40f45bbb5fdbe72a48628e5',
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+			)
+		);
+
+		$data = json_decode( $response['body'] );
+
+		$this->remove_product_schedule( $token, $data );
+
+		wp_send_json_success( $data );
+	}
+
+	public function auto_remove_product_wish( $token ) {
+		return $this->remove_product( $token );
+	}
+
+	public function remove_product_schedule( $token, $data ) {
+
+		if ( ! empty( $data ) && ! empty( $data->data ) ) {
+			foreach ( $data->data as $key => $value ) {
+				$api_endpoint = 'https://merchant.wish.com/api/v3/products/' . $value->id;
+				$response     = wp_remote_request(
+					$api_endpoint,
+					array(
+						'method'  => 'DELETE',
+						'headers' => array(
+							// 'Authorization' => 'Bearer 76bdda41b40f45bbb5fdbe72a48628e5',
+							'Authorization' => 'Bearer ' . $token,
+							'Content-Type'  => 'application/json',
+						),
+					)
+				);
+			}
+			wp_schedule_single_event( time() + 60, 'schedule_remove_product', array( $token ) );
+		}
+
 	}
 
 	/**
@@ -95,7 +150,7 @@ class ManagerOrderAjax {
 	 */
 	public function create_order_merchant() {
 		$token = isset( $_POST['token_mer'] ) ? $_POST['token_mer'] : '';
-		
+
 		if ( $token ) {
 			update_option( 'token_mer', $token );
 		}
@@ -257,15 +312,15 @@ class ManagerOrderAjax {
 		$redirect_uri  = isset( $_POST['redirect_uri'] ) ? $_POST['redirect_uri'] : '';
 		$name_app      = isset( $_POST['name_app'] ) ? $_POST['name_app'] : '';
 
-			$wpdb->replace(
-				$wpdb->prefix . 'mpo_config',
-				array(
-					'name_app'      => $name_app,
-					'client_id'     => $client_id,
-					'client_secret' => $client_secret,
-					'redirect_uri'  => $redirect_uri,
-				)
-			);
+		$wpdb->replace(
+			$wpdb->prefix . 'mpo_config',
+			array(
+				'name_app'      => $name_app,
+				'client_id'     => $client_id,
+				'client_secret' => $client_secret,
+				'redirect_uri'  => $redirect_uri,
+			)
+		);
 
 		die();
 	}
@@ -294,23 +349,23 @@ class ManagerOrderAjax {
 		$api_endpoint    = 'https://merchant.wish.com/api/v3/oauth/access_token';
 		$parsed_response = $this->request_manager_order( $api_endpoint, $request, 'GET' );
 
-			$token        = $parsed_response->data->access_token;
-			$refesh_token = $parsed_response->data->refresh_token;
-			$expiry_time  = $parsed_response->data->expiry_time;
+		$token        = $parsed_response->data->access_token;
+		$refesh_token = $parsed_response->data->refresh_token;
+		$expiry_time  = $parsed_response->data->expiry_time;
 
-			$wpdb->update(
-				$wpdb->prefix . 'mpo_config',
-				array(
-					'access_token' => $token,
-					'refesh_token' => $refesh_token,
-					'expiry_time'  => $expiry_time,
-				),
-				array( 'client_id' => $client_id )
-			);
+		$wpdb->update(
+			$wpdb->prefix . 'mpo_config',
+			array(
+				'access_token' => $token,
+				'refesh_token' => $refesh_token,
+				'expiry_time'  => $expiry_time,
+			),
+			array( 'client_id' => $client_id )
+		);
 
-			wp_schedule_single_event( time() + 30 * 86400, 'schedule_refesh_token_new', array( $refesh_token, $client_id, $client_secret ) );
+		wp_schedule_single_event( time() + 30 * 86400, 'schedule_refesh_token_new', array( $refesh_token, $client_id, $client_secret ) );
 
-			wp_send_json_success( $parsed_response );
+		wp_send_json_success( $parsed_response );
 
 		die();
 	}
@@ -399,7 +454,7 @@ class ManagerOrderAjax {
 						'client_id'          => $client_id,
 						'access_token'       => $token,
 						'order_time'         => $value->released_at,
-						'hours_to_fulfill'   => $value->fulfillment_requirements->expected_ship_time,
+						// 'hours_to_fulfill'   => $value->fulfillment_requirements->expected_ship_time,
 						'transaction_id'     => $value->transaction_id,
 						'product_id'         => $value->product_information->sku,
 						'product_name'       => $value->product_information->name,

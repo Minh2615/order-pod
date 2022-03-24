@@ -119,6 +119,15 @@ class ManagerOrder {
 			array( $this, 'mpo_list_campaign_callback' ),
 		);
 
+		add_submenu_page(
+			'manager_order',
+			__( 'iFrame', 'order_sandbox' ),
+			__( 'iFrame', 'order_sandbox' ),
+			'manage_options',
+			'mpo_iframe',
+			array( $this, 'mpo_iframe_callback' ),
+		);
+
 	}
 
 	public function mpo_config_callback() {
@@ -135,6 +144,10 @@ class ManagerOrder {
 
 	public function mpo_list_campaign_callback() {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/custom-camp.php';
+	}
+
+	public function mpo_iframe_callback() {
+		require_once plugin_dir_path( __FILE__ ) . '/templates/iframe.php';
 	}
 
 	function load_enqueue_scripts_on_admin() {

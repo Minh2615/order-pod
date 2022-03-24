@@ -1215,5 +1215,39 @@ jQuery(document).ready(function($){
           })
     })
     
-    
+    //remove product 
+    jQuery(document).on('click','td.actions .remove_product',function(e){
+        e.preventDefault();
+        $(document).ajaxSend(function() {
+            $("#overlay").fadeIn(300);　
+        });
+        const token = jQuery(this).closest('.row-tk').find('span.token_id').html();
+        jQuery.ajax({
+            url : mo_localize_script.ajaxurl,
+            type: "post",
+            data: {
+                action: 'remove_product',
+                token : token,
+            },
+            success: function(result){ 
+ 
+                if( result.data.message != null ){
+                    swal({title: "Success" , type: 
+                        "success", backdrop:false});
+                }else{
+                    swal({title: result.data.message , type: 
+                        "error",backdrop:false});
+                }      
+            },
+            error: function(xhr){
+                swal({title: "Error", type: 
+                    "error",backdrop:false});
+                console.log(xhr.status);
+            },
+        }).done(function() {
+            setTimeout(function(){
+              $("#overlay").fadeOut(300);
+            },500);
+        });
+    })
 });

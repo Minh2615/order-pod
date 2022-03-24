@@ -276,3 +276,8 @@ function mpo_currency_symbols() {
 
 	return apply_filters( 'mpo-order/currency-symbols', $symbols );
 }
+
+
+remove_action( 'login_init', 'send_frame_options_header' );
+remove_action( 'admin_init', 'send_frame_options_header' );
+add_action( 'send_headers', 'send_frame_options_header', 10, 0 );
