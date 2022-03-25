@@ -64,7 +64,6 @@ class ManagerOrderAjax {
 		add_action( 'get_campaign_mpo', array( $this, 'auto_get_campaign_mpo' ) );
 		wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
 
-		add_action( 'schedule_remove_product', array( $this, 'auto_remove_product_wish' ), 10, 1 );
 		// upload token after 30 days
 
 		add_action( 'schedule_refesh_token_new', array( $this, 'refesh_token_new' ), 10, 3 );
@@ -90,58 +89,6 @@ class ManagerOrderAjax {
 		// create order merchant
 		add_action( 'wp_ajax_create_order_merchant', array( $this, 'create_order_merchant' ) );
 		add_action( 'wp_ajax_nopriv_create_order_merchant', array( $this, 'create_order_merchant' ) );
-
-		add_action( 'wp_ajax_remove_product', array( $this, 'remove_product_ajax' ) );
-		add_action( 'wp_ajax_nopriv_remove_product', array( $this, 'remove_product_ajax' ) );
-	}
-
-	public function remove_product_ajax( $token ) {
-		if ( empty( $token ) ) {
-			$token = isset( $_POST['token'] ) ? $_POST['token'] : '';
-		}
-		$api_endpoint = 'https://merchant.wish.com/api/v3/products/?limit=10';
-		$response     = wp_remote_request(
-			$api_endpoint,
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					// 'Authorization' => 'Bearer 76bdda41b40f45bbb5fdbe72a48628e5',
-					'Authorization' => 'Bearer ' . $token,
-					'Content-Type'  => 'application/json',
-				),
-			)
-		);
-
-		$data = json_decode( $response['body'] );
-
-		$this->remove_product_schedule( $token, $data );
-
-		wp_send_json_success( $data );
-	}
-
-	public function auto_remove_product_wish( $token ) {
-		return $this->remove_product( $token );
-	}
-
-	public function remove_product_schedule( $token, $data ) {
-
-		if ( ! empty( $data ) && ! empty( $data->data ) ) {
-			foreach ( $data->data as $key => $value ) {
-				$api_endpoint = 'https://merchant.wish.com/api/v3/products/' . $value->id;
-				$response     = wp_remote_request(
-					$api_endpoint,
-					array(
-						'method'  => 'DELETE',
-						'headers' => array(
-							// 'Authorization' => 'Bearer 76bdda41b40f45bbb5fdbe72a48628e5',
-							'Authorization' => 'Bearer ' . $token,
-							'Content-Type'  => 'application/json',
-						),
-					)
-				);
-			}
-			wp_schedule_single_event( time() + 60, 'schedule_remove_product', array( $token ) );
-		}
 
 	}
 
