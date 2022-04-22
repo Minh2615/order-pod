@@ -1,4 +1,7 @@
-DELETE  https://merchant.wish.com/api/v3/products/61665433def137b995a3b1a9
-Authorization: Bearer 76bdda41b40f45bbb5fdbe72a48628e5
+GET https://merchant.wish.com/api/v3/products/604b08566dc1ff54efd00169
+Authorization: Bearer 0c2d0ad8d6454d8aa9ccc9c17f7076fa
 
 ###
+
+GET https://merchant.wish.com/api/v3/merchant/warehouses
+Authorization: Bearer f3424ebd7b9844b7ba78a2a91d722692

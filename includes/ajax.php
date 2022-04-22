@@ -90,8 +90,61 @@ class ManagerOrderAjax {
 		add_action( 'wp_ajax_create_order_merchant', array( $this, 'create_order_merchant' ) );
 		add_action( 'wp_ajax_nopriv_create_order_merchant', array( $this, 'create_order_merchant' ) );
 
-	}
+		// get product wish
+		add_action( 'wp_ajax_remove_all_product', array( $this, 'remove_all_product' ) );
+		add_action( 'wp_ajax_nopriv_remove_all_product', array( $this, 'remove_all_product' ) );
 
+		add_action( 'wp_ajax_get_all_product', array( $this, 'get_all_product' ) );
+		add_action( 'wp_ajax_nopriv_get_all_product', array( $this, 'get_all_product' ) );
+	}
+	public function remove_all_product() {
+		$token           = ! empty( $_POST['token'] ) ? $_POST['token'] : '';
+		$data            = ! empty( $_POST['data'] ) ? $_POST['data'] : '';
+		$parsed_response = '';
+		if ( ! empty( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				$point    = 'https://merchant.wish.com/api/v3/products/' . $value['id'];
+				$response = wp_remote_request(
+					$point,
+					array(
+						'method'      => 'DELETE',
+						'headers'     => array(
+							'authorization' => 'Bearer ' . $token,
+							'Content-Type'  => 'application/json',
+						),
+						'body'        => $request,
+						'timeout'     => 70,
+						'sslverify'   => false,
+						'data_format' => 'body',
+					)
+				);
+
+				$parsed_response = json_decode( $response['body'] );
+			}
+		}
+	}
+	public function get_all_product() {
+		$token    = ! empty( $_POST['token'] ) ? $_POST['token'] : '';
+		$point    = 'https://merchant.wish.com/api/v3/products?limit=10';
+		$response = wp_remote_request(
+			$point,
+			array(
+				'method'      => 'GET',
+				'headers'     => array(
+					'authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'        => $request,
+				'timeout'     => 70,
+				'sslverify'   => false,
+				'data_format' => 'body',
+			)
+		);
+
+		$parsed_response = json_decode( $response['body'] );
+
+		wp_send_json_success( $parsed_response );
+	}
 	/**
 	 * create order merchant
 	 */
@@ -629,78 +682,81 @@ class ManagerOrderAjax {
 	 */
 	public function start_upload_product_merchant() {
 
-		$token        = isset( $_POST['access_token'] ) ? $_POST['access_token'] : '';
-		$api_product  = 'https://merchant.wish.com/api/v2/product/add';
-		$api_variable = 'https://merchant.wish.com/api/v2/variant/add';
-
+		$token       = isset( $_POST['access_token'] ) ? $_POST['access_token'] : '';
+		$api_product  = 'https://merchant.wish.com/api/v3/products';
+		// $token        = 'f3424ebd7b9844b7ba78a2a91d722692';
 		$list_product = json_decode( stripslashes( $_POST['data_csv'] ) );
 
-		foreach ( $list_product as $key => $value ) {
+		$rq_warehouse = wp_remote_post(
+			'https://merchant.wish.com/api/v3/merchant/warehouses',
+			array(
+				'method'    => 'GET',
+				'headers'   => array(
+					'content-type'  => 'application/json',
+					'authorization' => 'Bearer ' . $token,
+				),
+				'body'      => array(),
+				'timeout'   => 70,
+				'sslverify' => false,
+			)
+		);
+		$warehouse_id = json_decode( $rq_warehouse['body'] )->data[0]->id;
 
-			if ( $key > 0 ) {
-				if ( $value[1] == $value[0] ) {
+		if ( ! empty( $warehouse_id ) ) {
+			foreach ( $list_product as $key => $value ) {
+
+				if ( $key > 0 ) {
+					$default_shipping_prices                = new stdClass();
+					$default_shipping_prices->amount        = $value[14];
+					$default_shipping_prices->currency_code = $value[12];
+
 					$request     = array(
+						'default_shipping_prices' => array(
+							(object) array(
+								'default_shipping_price' => $default_shipping_prices,
+								'warehouse_id'           => $warehouse_id,
+							),
+						),
+						'description'             => $value[13],
 						'name'                    => $value[4],
-						'description'             => $value[13],
-						'tags'                    => $value[11],
-						'sku'                     => $value[1],
-						'color'                   => $value[8],
-						'size'                    => $value[9],
-						'inventory'               => $value[10],
-						'price'                   => $value[14],
-						'localized_currency_code' => $value[12],
-						'shipping_time'           => $value[17],
-						'main_image'              => $value[19],
+						'main_image'              => (object) array(
+							'url' => $value[19],
+						),
 						'parent_sku'              => $value[0],
-						'landing_page_url'        => $value[18],
-						'upc'                     => $value[2],
-						'declared_name'           => $value[5],
-						'declared_local_name'     => $value[6],
-						'pieces'                  => $value[7],
-						'access_token'            => $token,
-						'shipping'                => $value[16],
+						'variations'              => array(
+							(object) array(
+								'inventories' => array(
+									(object) array(
+										'inventory'    => $value[10],
+										'warehouse_id' => $warehouse_id,
+									),
+								),
+								'price'       => (object) array(
+									'amount'        => $value[14],
+									'currency_code' => $value[12],
+								),
+								'sku'         => $value[1],
+							),
+						),
 					);
 					$arr_request = array(
 						'method'    => 'POST',
-						'headers'   => array(),
-						'body'      => $request,
-						'timeout'   => 70,
-						'sslverify' => false,
-					);
-					$respon      = wp_remote_post( $api_product, $arr_request );
-				} else {
-					$new_request = array(
-						'description'             => $value[13],
-						'tags'                    => $value[11],
-						'sku'                     => $value[1],
-						'color'                   => $value[8],
-						'size'                    => $value[9],
-						'inventory'               => $value[10],
-						'price'                   => $value[14],
-						'localized_currency_code' => $value[12],
-						'shipping_time'           => $value[17],
-						'main_image'              => $value[19],
-						'parent_sku'              => $value[0],
-						'landing_page_url'        => $value[18],
-						'upc'                     => $value[2],
-						'declared_name'           => $value[5],
-						'declared_local_name'     => $value[6],
-						'pieces'                  => $value[7],
-						'access_token'            => $token,
-					);
-					$arr_request = array(
-						'method'    => 'POST',
-						'headers'   => array(),
-						'body'      => $new_request,
+						'headers'   => array(
+							'content-type'  => 'application/json',
+							'authorization' => 'Bearer ' . $token,
+						),
+						'body'      => json_encode( $request ),
 						'timeout'   => 70,
 						'sslverify' => false,
 					);
 
-					$respon = wp_remote_post( $api_variable, $arr_request );
+					$respon = wp_remote_post( $api_product, $arr_request );
+					print_r( json_decode( $respon['body'] ) );
+					die( 'ccc' );
 				}
 			}
+			return $respon;
 		}
-		return $respon;
 
 	}
 

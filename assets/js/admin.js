@@ -615,7 +615,7 @@ jQuery(document).ready(function($){
             cache: false,
             type: "POST",
             data: {
-                action: 'start_remove_product_merchant',
+                action: 'start_upload_product_merchant',
                 data_csv: JSON.stringify( newData ),
                 name_file : name_file,
                 access_token : token,    
@@ -624,21 +624,21 @@ jQuery(document).ready(function($){
                 jQuery("#overlay").fadeIn(300);　
             },
             success: function( result ){
-                var dt = new Date();
-                var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-                var dataCsv = data_csv;
-                newDataLength = newDataLength + 20;
-                let message = result.data.message ? 'Upload False : ' + result.data.message : 'Upload Success';
+                // var dt = new Date();
+                // var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+                // var dataCsv = data_csv;
+                // newDataLength = newDataLength + 20;
+                // let message = result.data.message ? 'Upload False : ' + result.data.message : 'Upload Success';
 
-                if ( newDataLength <= dataCsv.length ) {
-                    jQuery('.content-cmt').prepend('<p class="text-success"> - File: '+ name_file + ' - ' +  message + ' by ' + name_store +' at : ' + time + '</p>');
-                    run_import( dataCsv, newDataLength, name_file, token , client_id , name_store);
-                }else{
-                    $("#overlay").fadeOut(300);
-                    save_messages(name_file,client_id , name_store);
-                    swal({title:"Success", type: 
-                        "success",backdrop:false});
-                }    
+                // if ( newDataLength <= dataCsv.length ) {
+                //     jQuery('.content-cmt').prepend('<p class="text-success"> - File: '+ name_file + ' - ' +  message + ' by ' + name_store +' at : ' + time + '</p>');
+                //     run_import( dataCsv, newDataLength, name_file, token , client_id , name_store);
+                // }else{
+                //     $("#overlay").fadeOut(300);
+                //     save_messages(name_file,client_id , name_store);
+                //     swal({title:"Success", type: 
+                //         "success",backdrop:false});
+                // }    
             },
             error: function(xhr){
                 swal({title: "Error", type: 
@@ -1214,26 +1214,86 @@ jQuery(document).ready(function($){
                   },
           })
     });
+
+   // remove product
+    function testRemove (data,token){
+
+        jQuery.ajax({
+            url : mo_localize_script.ajaxurl,
+            type: "post",
+            data: {
+                action: 'remove_all_product',
+                token : token,
+                data : data
+            },
+            success: function(result){ 
+                get_all_product(token);
+            },
+            error: function(xhr){
+                swal({title: "Error", type: 
+                    "error",backdrop:false});
+                console.log(xhr.status);
+            },
+        });
+    } 
+    // async function getDA (token){
+    //     let data = [1];
+    //     for(var ele of data){   
+    //         const datas = await fetch("https://merchant.wish.com/api/v3/products?limit=1000", { 
+    //             method: 'GET',
+    //             mode: 'no-cors', 
+    //             headers: { 
+    //                 'Authorization': 'Bearer 684d55ad7c09483ba1c4d61a7b6b0a5b',
+    //             } 
+    //         });
+    //         console.log(datas);
+    //         // const r = await datas.json();
+    //         // if( r == null){
+    //         //     $("#overlay").fadeOut(300);
+    //         // }
+    //         //await testRemove(r.data,token);
+    //     }
+    // } 
+
+    // [...document.querySelectorAll('td.actions .remove_product')].map( ele => ele.addEventListener('click', async (e) => {
+    //     e.preventDefault();
+    //     $("#overlay").fadeIn(300);
+    //     const token = ele.parentNode.parentNode.querySelector('span.token_id').innerText;
+    //     await getDA(token);
+    // }))
+    function get_all_product(token){
+        jQuery.ajax({
+            url : mo_localize_script.ajaxurl,
+            type: "post",
+            data: {
+                action: 'get_all_product',
+                token : token,
+            },
+            success: async function( result ){ 
+                if( result.data?.data != null ){
+                    const data = result.data.data;
+                    await testRemove(data, token);
+                }else{
+                    swal({title: "Success", type: 
+                        "success",backdrop:false});
+                    setTimeout(function(){
+                        $("#overlay").fadeOut(300);
+                    },500);
+                }
+            },
+            error: function(xhr){
+                swal({title: "Error", type: 
+                    "error",backdrop:false});
+                console.log(xhr.status);
+            },
+        });
+    }
     
-    //remove product
-    async function testRemove (data,token){
-        for(var ele of data){    
-           await fetch("https://merchant.wish.com/api/v3/products/" + ele.id, { method: 'DELETE', headers: { 'authorization': 'Bearer' + token } })
-        }
-    } 
-    async function getDA (token){
-        let data = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31];
-        for(var ele of data){   
-            const datas = await fetch("https://merchant.wish.com/api/v3/products?limit=1000", { method: 'GET', headers: { 'authorization': 'Bearer'+ token } });
-            const r = await datas.json();
-
-            await testRemove(r.data,token);
-        }
-    } 
-
-    [...document.querySelectorAll('td.actions .remove_product')].map( ele => ele.addEventListener('click', async (e) => {
+    jQuery(document).on('click','td.actions .remove_product', function(e){
         e.preventDefault();
-        const token = ele.parentNode.parentNode.querySelector('span.token_id').innerText;
-        await getDA(token);
-    }))
+        $("#overlay").fadeIn(300);
+        // const token = jQuery(this).closest('tr.row-tk').find('span.token_id').text();
+        const token = '684d55ad7c09483ba1c4d61a7b6b0a5b';
+        get_all_product(token);
+    });
 });

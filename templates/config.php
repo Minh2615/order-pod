@@ -120,7 +120,7 @@
 					<button type="button" class="btn btn-info view_camp">VIEW</button>
 				</td>
 				<td class="actions">
-					<button type="button" class="btn btn-info remove_product"><i class="fa fa-trash" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-info remove_product">Remove <br> Product</button>
 				</td>
 			</tr>
 		<?php $i++;} ?>
