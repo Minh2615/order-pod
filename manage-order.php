@@ -24,8 +24,11 @@ class ManagerOrder {
 	}
 
 	public function __construct() {
+		
 		$this->plugin_defines();
 		self::init();
+		register_activation_hook( __FILE__, array( __CLASS__, 'on_activation' ) );
+		register_deactivation_hook( __FILE__, array( __CLASS__, 'on_deactivation' ) );
 	}
 
 	protected function init() {
@@ -60,10 +63,24 @@ class ManagerOrder {
 		 */
 		$mpoDatabase = Mpo_Table::init();
 		$mpoDatabase->make();
+		self::add_role_des_by_admin();
+	}
+
+	public static function add_role_des_by_admin() {
+		$admin = get_role( 'administrator' );
+
+		$admin->add_cap( 'edit_pod' );
+		$admin->add_cap( 'config_pod' );
+		$admin->add_cap( 'view_order_pod' );
+		$admin->add_cap( 'view_history_pod' );
+		$admin->add_cap( 'view_camp_pod' );
+		$admin->add_cap( 'import_pod' );
+
 	}
 
 	public static function on_deactivation() {
-
+		remove_role( 'seller' );
+		remove_role( 'supporter' );
 	}
 
 	protected function plugin_defines() {
@@ -79,7 +96,7 @@ class ManagerOrder {
 		add_menu_page(
 			__( 'Manager Order', 'order_sandbox' ),
 			__( 'Manager Order', 'order_sandbox' ),
-			'manage_options',
+			'edit_pod',
 			'manager_order',
 			'',
 			'dashicons-welcome-learn-more',
@@ -89,7 +106,7 @@ class ManagerOrder {
 			'manager_order',
 			__( 'Configs', 'order_sandbox' ),
 			__( 'Configs', 'order_sandbox' ),
-			'manage_options',
+			'edit_pod',
 			'manager_order',
 			array( $this, 'mpo_config_callback' ),
 		);
@@ -97,7 +114,7 @@ class ManagerOrder {
 			'manager_order',
 			__( 'Order', 'order_sandbox' ),
 			__( 'Order', 'order_sandbox' ),
-			'manage_options',
+			'view_order_pod',
 			'mpo_list_order',
 			array( $this, 'mpo_list_order_callback' ),
 		);
@@ -105,7 +122,7 @@ class ManagerOrder {
 			'manager_order',
 			__( 'History', 'order_sandbox' ),
 			__( 'History', 'order_sandbox' ),
-			'manage_options',
+			'view_history_pod',
 			'mpo_order_history',
 			array( $this, 'mpo_order_history_callback' ),
 		);
@@ -114,19 +131,19 @@ class ManagerOrder {
 			'manager_order',
 			__( 'Campaign', 'order_sandbox' ),
 			__( 'Campaign', 'order_sandbox' ),
-			'manage_options',
+			'view_camp_pod',
 			'mpo_list_campaign',
 			array( $this, 'mpo_list_campaign_callback' ),
 		);
 
-		add_submenu_page(
-			'manager_order',
-			__( 'iFrame', 'order_sandbox' ),
-			__( 'iFrame', 'order_sandbox' ),
-			'manage_options',
-			'mpo_iframe',
-			array( $this, 'mpo_iframe_callback' ),
-		);
+		// add_submenu_page(
+		// 	'manager_order',
+		// 	__( 'iFrame', 'order_sandbox' ),
+		// 	__( 'iFrame', 'order_sandbox' ),
+		// 	'edit_pod',
+		// 	'mpo_iframe',
+		// 	array( $this, 'mpo_iframe_callback' ),
+		// );
 
 	}
 
@@ -146,9 +163,9 @@ class ManagerOrder {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/custom-camp.php';
 	}
 
-	public function mpo_iframe_callback() {
-		require_once plugin_dir_path( __FILE__ ) . '/templates/iframe.php';
-	}
+	// public function mpo_iframe_callback() {
+	// 	require_once plugin_dir_path( __FILE__ ) . '/templates/iframe.php';
+	// }
 
 	function load_enqueue_scripts_on_admin() {
 		$v_rand = uniqid();

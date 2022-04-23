@@ -55,26 +55,22 @@ class ManagerOrderAjax {
 		add_action( 'wp_ajax_update_campaign_mpo', array( $this, 'update_campaign_mpo' ) );
 		add_action( 'wp_ajax_nopriv_update_campaign_mpo', array( $this, 'update_campaign_mpo' ) );
 
-		add_action( 'update_new_order_mpo', array( $this, 'auto_update_new_order_mpo' ) );
-		wp_schedule_single_event( time() + 3600, 'update_new_order_mpo' );
+		// add_action( 'update_new_order_mpo', array( $this, 'auto_update_new_order_mpo' ) );
+		// wp_schedule_single_event( time() + 3600, 'update_new_order_mpo' );
 
-		add_action( 'update_status_order_mpo', array( $this, 'auto_update_status_order_mpo' ) );
-		wp_schedule_single_event( time() + 3600, 'update_status_order_mpo' );
+		// add_action( 'update_status_order_mpo', array( $this, 'auto_update_status_order_mpo' ) );
+		// wp_schedule_single_event( time() + 3600, 'update_status_order_mpo' );
 
-		add_action( 'get_campaign_mpo', array( $this, 'auto_get_campaign_mpo' ) );
-		wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
+		// add_action( 'get_campaign_mpo', array( $this, 'auto_get_campaign_mpo' ) );
+		// wp_schedule_single_event( time() + 3600, 'get_campaign_mpo' );
 
 		// upload token after 30 days
 
-		add_action( 'schedule_refesh_token_new', array( $this, 'refesh_token_new' ), 10, 3 );
+		// add_action( 'schedule_refesh_token_new', array( $this, 'refesh_token_new' ), 10, 3 );
 
 		// upload product after upload csv
 		add_action( 'wp_ajax_start_upload_product_merchant', array( $this, 'start_upload_product_merchant' ) );
 		add_action( 'wp_ajax_nopriv_start_upload_product_merchant', array( $this, 'start_upload_product_merchant' ) );
-
-		// remove product after upload csv
-		add_action( 'wp_ajax_auto_romove_product_merchant', array( $this, 'auto_romove_product_merchant' ) );
-		add_action( 'wp_ajax_nopriv_auto_romove_product_merchant', array( $this, 'auto_romove_product_merchant' ) );
 
 		add_action( 'wp_ajax_save_messages_after_upload_product', array( $this, 'save_messages_after_upload_product' ) );
 		add_action( 'wp_ajax_nopriv_save_messages_after_upload_product', array( $this, 'save_messages_after_upload_product' ) );
@@ -97,6 +93,9 @@ class ManagerOrderAjax {
 		add_action( 'wp_ajax_get_all_product', array( $this, 'get_all_product' ) );
 		add_action( 'wp_ajax_nopriv_get_all_product', array( $this, 'get_all_product' ) );
 	}
+
+
+
 	public function remove_all_product() {
 		$token           = ! empty( $_POST['token'] ) ? $_POST['token'] : '';
 		$data            = ! empty( $_POST['data'] ) ? $_POST['data'] : '';
@@ -654,25 +653,38 @@ class ManagerOrderAjax {
 	 * Remove products
 	 */
 	public function start_remove_product_merchant() {
+
 		global $wpdb;
-		$list_product = json_decode( stripslashes( $_POST['data_csv'] ) );
-		$token        = $_POST['access_token'];
 
-		foreach ( $list_product as $key => $value ) {
-			$point_remove = 'https://merchant.wish.com/api/v2/product/remove';
+		$data            = json_decode( stripslashes( $_POST['data_csv'] ) );
+		$token           = ! empty( $_POST['access_token'] ) ? $_POST['access_token'] : '';
+		$parsed_response = '';
 
-			if ( $key > 0 ) {
+		if ( ! empty( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				if ( $key > 0 ) {
+					$point    = 'https://merchant.wish.com/api/v3/products/' . $value[1];
+					$response = wp_remote_request(
+						$point,
+						array(
+							'method'      => 'DELETE',
+							'headers'     => array(
+								'authorization' => 'Bearer ' . $token,
+								'Content-Type'  => 'application/json',
+							),
+							'body'        => $request,
+							'timeout'     => 70,
+							'sslverify'   => false,
+							'data_format' => 'body',
+						)
+					);
 
-				$request = array(
-					'access_token' => $token,
-					'parent_sku'   => $value[5],
-				);
-
-				$respon = $this->request_manager_order( $point_remove, $request, 'POST' );
+					$parsed_response = json_decode( $response['body'] );
+				}
 			}
 		}
 
-		wp_send_json_success( $respon );
+		wp_send_json_success( $parsed_response );
 
 		die();
 	}
@@ -683,7 +695,7 @@ class ManagerOrderAjax {
 	public function start_upload_product_merchant() {
 
 		$token       = isset( $_POST['access_token'] ) ? $_POST['access_token'] : '';
-		$api_product  = 'https://merchant.wish.com/api/v3/products';
+		$api_product = 'https://merchant.wish.com/api/v3/products';
 		// $token        = 'f3424ebd7b9844b7ba78a2a91d722692';
 		$list_product = json_decode( stripslashes( $_POST['data_csv'] ) );
 
@@ -700,7 +712,8 @@ class ManagerOrderAjax {
 				'sslverify' => false,
 			)
 		);
-		$warehouse_id = json_decode( $rq_warehouse['body'] )->data[0]->id;
+
+		$warehouse_id = empty( json_decode( $rq_warehouse['body'] )->message ) ? json_decode( $rq_warehouse['body'] )->data[0]->id : '';
 
 		if ( ! empty( $warehouse_id ) ) {
 			foreach ( $list_product as $key => $value ) {
@@ -751,8 +764,6 @@ class ManagerOrderAjax {
 					);
 
 					$respon = wp_remote_post( $api_product, $arr_request );
-					print_r( json_decode( $respon['body'] ) );
-					die( 'ccc' );
 				}
 			}
 			return $respon;

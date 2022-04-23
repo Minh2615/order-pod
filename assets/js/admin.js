@@ -593,6 +593,26 @@ jQuery(document).ready(function($){
         var token = jQuery(this).closest('.frmCSVImport').find('input[name="access_token"]').val();
         var client_id = jQuery(this).closest('.frmCSVImport').find('input[name="client_id"]').val();
         var name_store = jQuery(this).closest('.frmCSVImport').find('input[name="name_store"]').val();
+        var action = 'start_upload_product_merchant';
+        jQuery('input[name="file_product"]').parse({
+            config: {
+                complete: function(results, file) {
+                    var data_csv = results.data;  
+                    var newDataLength = 0;
+
+                    run_import( action, data_csv, newDataLength, name_file, token , client_id , name_store);            
+                }
+            },
+        });
+    });
+
+    jQuery(document).on('click','.remove_csv',function(){
+
+        var name_file = jQuery(this).closest('.frmCSVImport').find('input[name="file_product"]').val().replace(/C:\\fakepath\\/i, '');
+        var token = jQuery(this).closest('.frmCSVImport').find('input[name="access_token"]').val();
+        var client_id = jQuery(this).closest('.frmCSVImport').find('input[name="client_id"]').val();
+        var name_store = jQuery(this).closest('.frmCSVImport').find('input[name="name_store"]').val();
+        var action = 'start_remove_product_merchant';
 
         jQuery('input[name="file_product"]').parse({
             config: {
@@ -600,13 +620,13 @@ jQuery(document).ready(function($){
                     var data_csv = results.data;  
                     var newDataLength = 0;
 
-                    run_import( data_csv, newDataLength, name_file, token , client_id , name_store);            
+                    run_import( action, data_csv, newDataLength, name_file, token , client_id , name_store);            
                 }
             },
         });
     });
 
-    function run_import( data_csv, newDataLength, name_file, token , client_id , name_store) {
+    function run_import( action, data_csv, newDataLength, name_file, token , client_id , name_store) {
 
         var newData = data_csv.slice( newDataLength, newDataLength + 20);
 
@@ -615,7 +635,7 @@ jQuery(document).ready(function($){
             cache: false,
             type: "POST",
             data: {
-                action: 'start_upload_product_merchant',
+                action: action,
                 data_csv: JSON.stringify( newData ),
                 name_file : name_file,
                 access_token : token,    
@@ -624,21 +644,16 @@ jQuery(document).ready(function($){
                 jQuery("#overlay").fadeIn(300);　
             },
             success: function( result ){
-                // var dt = new Date();
-                // var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-                // var dataCsv = data_csv;
-                // newDataLength = newDataLength + 20;
-                // let message = result.data.message ? 'Upload False : ' + result.data.message : 'Upload Success';
-
-                // if ( newDataLength <= dataCsv.length ) {
-                //     jQuery('.content-cmt').prepend('<p class="text-success"> - File: '+ name_file + ' - ' +  message + ' by ' + name_store +' at : ' + time + '</p>');
-                //     run_import( dataCsv, newDataLength, name_file, token , client_id , name_store);
-                // }else{
-                //     $("#overlay").fadeOut(300);
-                //     save_messages(name_file,client_id , name_store);
-                //     swal({title:"Success", type: 
-                //         "success",backdrop:false});
-                // }    
+                var dataCsv = data_csv;
+                newDataLength = newDataLength + 20;
+                if ( newDataLength <= dataCsv.length ) {
+                    run_import( dataCsv, newDataLength, name_file, token , client_id , name_store);
+                }else{
+                    $("#overlay").fadeOut(300);
+                    save_messages(name_file,client_id , name_store);
+                    swal({title:"Success", type: 
+                        "success",backdrop:false});
+                }    
             },
             error: function(xhr){
                 swal({title: "Error", type: 
@@ -1292,8 +1307,7 @@ jQuery(document).ready(function($){
     jQuery(document).on('click','td.actions .remove_product', function(e){
         e.preventDefault();
         $("#overlay").fadeIn(300);
-        // const token = jQuery(this).closest('tr.row-tk').find('span.token_id').text();
-        const token = '684d55ad7c09483ba1c4d61a7b6b0a5b';
+        const token = jQuery(this).closest('tr.row-tk').find('span.token_id').text();
         get_all_product(token);
     });
 });

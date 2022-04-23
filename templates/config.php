@@ -3,6 +3,10 @@
 	<span class="spinner_order"></span>
   </div>
 </div>
+<?php if ( current_user_can( 'import_pod' ) ) : ?>
+	<h3 class="col-lg-12 mb-3 mt-5">Import && Remove CSV</h3>
+<?php endif; ?>
+<?php if ( current_user_can( 'edit_posts' ) ) : ?>
 <div class="container-fluid mt-5 d-flex justify-content-center">
 	<div class="col-lg-5">
 		<h3 class="col-lg-12 mb-3">Create Stores</h3>
@@ -44,18 +48,29 @@
 		</div>
 	</div>
 </div>
+<?php endif; ?>
 <div class="container-fluid list_client_id mt-5 table-responsive-xl">
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th scope="col"><?php echo __( 'ID', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'App Name', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'App Info', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Order', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Products', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Notes', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Camps', 'order_sandbox' ); ?></th>
-				<th scope="col"><?php echo __( 'Actions', 'order_sandbox' ); ?></th>
+				<?php if ( current_user_can( 'import_pod' ) ) : ?>
+					<th scope="col"><?php echo __( 'ID', 'order_sandbox' ); ?></th>
+				<?php endif; ?>
+				<?php if ( current_user_can( 'import_pod' ) ) : ?>
+					<th scope="col"><?php echo __( 'App Name', 'order_sandbox' ); ?></th>
+				<?php endif; ?>
+				<?php if ( current_user_can( 'edit_posts' ) ) : ?>
+					<th scope="col"><?php echo __( 'App Info', 'order_sandbox' ); ?></th>
+					<th scope="col"><?php echo __( 'Order', 'order_sandbox' ); ?></th>
+				<?php endif; ?>
+				<?php if ( current_user_can( 'import_pod' ) ) : ?>
+					<th scope="col"><?php echo __( 'Products', 'order_sandbox' ); ?></th>
+				<?php endif; ?>
+				<?php if ( current_user_can( 'edit_posts' ) ) : ?>
+					<th scope="col"><?php echo __( 'Notes', 'order_sandbox' ); ?></th>
+					<th scope="col"><?php echo __( 'Camps', 'order_sandbox' ); ?></th>
+					<th scope="col"><?php echo __( 'Actions', 'order_sandbox' ); ?></th>
+				<?php endif; ?>
 			</tr>
 		</thead>
 		<tbody>
@@ -77,51 +92,62 @@
 		foreach ( $rs as $value ) {
 			?>
 			<tr class="row-tk">
-				<td scope="row" style="display:flex;justify-content:center;flex-wrap:wrap;"><p style="width:100%;text-align:center"><?php echo $i; ?></p><button type="button" class="btn btn-info remove_app"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+				<td scope="row" style="display:flex;justify-content:center;flex-wrap:wrap;"><p style="width:100%;text-align:center"><?php echo $i; ?></p>
+				<?php if ( current_user_can( 'edit_posts' ) ) : ?>
+					<button type="button" class="btn btn-info remove_app"><i class="fa fa-trash" aria-hidden="true"></i></button>
+				<?php endif; ?>
+			</td>
 				<td>
 					<p><?php echo $value->name_app; ?></p>
 				</td>
-				<td class="app_info">
-					<p>CLient ID: <span class="client_id"><?php echo $value->client_id; ?></span></p>
-					<p>CLient Secret: <span><?php echo $value->client_secret; ?></span></p>
-					<p>Token: <span class="token_id"><?php echo $value->access_token; ?></span></p>
-				<td class="order_config">
-					<button type="button" class="btn btn-info get_order">GET</button>
-					<button type="button" class="btn btn-info view_order">VIEW</button>
-				</td>
-				<td class="form_upload">
-					<div class="frmCSVImport">
-						<div class="form-row align-items-center">
-							<div class="col-auto my-1">
-							<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
-							</div>
-							<div class="col-auto my-1">
-								<div class="custom-control custom-checkbox mr-sm-2">
-									<input type="file" name="file_product" id="file_product" accept=".csv">
-									<input type="hidden" name="access_token" value="<?php echo $value->access_token; ?>">
-									<input type="hidden" name="client_id" value="<?php echo $value->client_id; ?>">
-									<input type="hidden" name="name_store" value="<?php echo $value->name_app; ?>">
+				<?php if ( current_user_can( 'edit_posts' ) ) : ?>
+					<td class="app_info">
+						<p>CLient ID: <span class="client_id"><?php echo $value->client_id; ?></span></p>
+						<p>CLient Secret: <span><?php echo $value->client_secret; ?></span></p>
+						<p>Token: <span class="token_id"><?php echo $value->access_token; ?></span></p>
+					<td class="order_config">
+						<button type="button" class="btn btn-info get_order">GET</button>
+						<button type="button" class="btn btn-info view_order">VIEW</button>
+					</td>
+				<?php endif; ?>
+				<?php if ( current_user_can( 'import_pod' ) ) : ?>
+					<td class="form_upload">
+						<div class="frmCSVImport">
+							<div class="form-row align-items-center">
+								<div class="col-auto my-1">
+								<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+								</div>
+								<div class="col-auto my-1">
+									<div class="custom-control custom-checkbox mr-sm-2">
+										<input type="file" name="file_product" id="file_product" accept=".csv">
+										<input type="hidden" name="access_token" value="<?php echo $value->access_token; ?>">
+										<input type="hidden" name="client_id" value="<?php echo $value->client_id; ?>">
+										<input type="hidden" name="name_store" value="<?php echo $value->name_app; ?>">
+									</div>
+								</div>
+								<div class="col-auto my-1">
+									<div class="btn btn-info submit_csv"><i class="fa fa-upload" aria-hidden="true"></i></div>
+									<div class="btn btn-info remove_csv"><i class="fa fa-trash" aria-hidden="true"></i></div>
 								</div>
 							</div>
-							<div class="col-auto my-1">
-								<div class="btn btn-info submit_csv"><i class="fa fa-upload" aria-hidden="true"></i></div>
-							</div>
 						</div>
-					</div>
-				</td>
-				<td class="note_app">
-					<span class="icon_note_app"><i class="fa fa-pencil-square" aria-hidden="true"></i></span>
-					<textarea name="note_app" cols="20">
-						<?php echo $value->note_app; ?>
-					</textarea>
-				</td>
-				<td class="camp_config">
-					<button type="button" class="btn btn-info get_camp">GET</button>
-					<button type="button" class="btn btn-info view_camp">VIEW</button>
-				</td>
-				<td class="actions">
-					<button type="button" class="btn btn-info remove_product">Remove <br> Product</button>
-				</td>
+					</td>
+				<?php endif; ?>
+				<?php if ( current_user_can( 'edit_posts' ) ) : ?>
+					<td class="note_app">
+						<span class="icon_note_app"><i class="fa fa-pencil-square" aria-hidden="true"></i></span>
+						<textarea name="note_app" cols="20">
+							<?php echo $value->note_app; ?>
+						</textarea>
+					</td>
+					<td class="camp_config">
+						<button type="button" class="btn btn-info get_camp">GET</button>
+						<button type="button" class="btn btn-info view_camp">VIEW</button>
+					</td>
+					<td class="actions">
+						<button type="button" class="btn btn-info remove_product">Remove <br> Product</button>
+					</td>
+				<?php endif ?>
 			</tr>
 		<?php $i++;} ?>
 		</tbody>

@@ -278,6 +278,31 @@ function mpo_currency_symbols() {
 }
 
 
-remove_action( 'login_init', 'send_frame_options_header' );
-remove_action( 'admin_init', 'send_frame_options_header' );
-add_action( 'send_headers', 'send_frame_options_header', 10, 0 );
+// remove_action( 'login_init', 'send_frame_options_header' );
+// remove_action( 'admin_init', 'send_frame_options_header' );
+// add_action( 'send_headers', 'send_frame_options_header', 10, 0 );
+
+add_action(
+	'admin_init',
+	function() {
+		add_role(
+			'seller',
+			'Seller',
+			array(
+				'edit_pod'   => true,
+				'read'       => true,
+				'import_pod' => true,
+			)
+		);
+		add_role(
+			'supporter',
+			'Support POD',
+			array(
+				'view_order_pod' => true,
+				'read'           => true,
+			)
+		);
+	}
+);
+
+
